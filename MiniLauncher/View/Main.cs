@@ -135,6 +135,7 @@ namespace MiniLauncher
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
         {
             networkClient.StopListen();
+            Environment.Exit(0);
         }
     }
 }
