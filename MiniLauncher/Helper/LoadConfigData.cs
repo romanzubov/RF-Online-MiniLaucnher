@@ -26,7 +26,7 @@ namespace MiniLauncher.Helper
             var r3Engine = new IniFile(".\\R3Engine.ini");
             var iniParser = new IniFile(_configPath);
             //Section Server
-            string[] keys = new string[3] { "LogginAddress", "OverrideServerAddress", "ServerAddress" };
+            string[] keys = new string[5] { "LogginAddress", "OverrideServerAddress", "ServerAddress", "OverrideServerSelection", "ServerIndexSelect" };
             result = iniParser.KeysExists(keys, "Server");
             // Section NationalSetting
             result = iniParser.KeyExists("OverrideNationalCode", "NationalSetting");
@@ -38,8 +38,10 @@ namespace MiniLauncher.Helper
             {
                 //Section Server
                 data.ServerConfig.LogginAddress = iniParser.Read("LogginAddress", "Server");
-                data.ServerConfig.OverrideServerAddress = iniParser.Read("OverrideServerAddress", "Server").ToLower() == "true" ? true : false;
                 data.ServerConfig.ServerAddress = iniParser.Read("ServerAddress", "Server");
+                data.ServerConfig.OverrideServerAddress = iniParser.Read("OverrideServerAddress", "Server").ToLower() == "true" ? true : false;
+                data.ServerConfig.OverrideServerSelection = iniParser.Read("OverrideServerSelection", "Server").ToLower() == "true" ? true : false;
+                data.ServerConfig.ServerIndexSelect = int.Parse(iniParser.Read("ServerIndexSelect", "Server"));
                 // Section NationalSetting
                 data.NationalConfig.OverrideNationalCode = iniParser.Read("OverrideNationalCode", "NationalSetting").ToLower() == "true" ? true : false;
                 data.NationalConfig.NationCode = data.NationalConfig.OverrideNationalCode ? DecodeNationData(r3Engine.Read("Language", "Setup")) : e_nation_code.NUM;

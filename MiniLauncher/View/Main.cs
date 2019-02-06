@@ -104,11 +104,17 @@ namespace MiniLauncher
         private void FillServerList(List<ServerState> _serverList)
         {
             Invoke(new Action(() => {
-                server_list.Enabled = true;
-                foreach (var server in _serverList)
+                var serverCfg = LauncherConfig.GetInstance.ServerConfig;
+                if (!serverCfg.OverrideServerSelection)
                 {
-                    string serverStatus = server.b_ServerState == 1 ? "Открыт" : "Закрыт";
-                    server_list.Items.Add(new ListViewItem(new[] { server.s_ServerName, serverStatus }));
+                    server_list.Enabled = true;
+                    foreach (var server in _serverList)
+                    {
+                        string serverStatus = server.b_ServerState == 1 ? "Открыт" : "Закрыт";
+                        server_list.Items.Add(new ListViewItem(new[] { server.s_ServerName, serverStatus }));
+                    }
+                } else {
+                    networkClient.SelectWordlRequest(serverCfg.ServerIndexSelect);
                 }
             }));
         }
