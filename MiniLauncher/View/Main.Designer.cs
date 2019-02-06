@@ -127,6 +127,7 @@
             // 
             // Main
             // 
+            this.AcceptButton = this.login_btn;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(231, 311);
@@ -138,7 +139,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.login_input);
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(250, 350);
+            this.MaximumSize = new System.Drawing.Size(247, 350);
             this.Name = "Main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "MiniLauncher";
