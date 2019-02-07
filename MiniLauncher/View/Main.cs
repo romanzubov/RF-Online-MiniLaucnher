@@ -16,24 +16,11 @@ namespace MiniLauncher
 {
     public partial class Main : Form
     {
-        private LocalizationManager Lm;
         private NetworkClient networkClient;
         public Main()
         {
-            Lm = LocalizationManager.GetInstance;
             InitializeComponent();
-            InitLocalization();
             InitializeNetwork();
-        }
-
-        private void InitLocalization()
-        {
-            ForAllControls(this, control =>
-            {
-                control.Text = Lm.GetString(control.Name);
-            });
-            server_name.Text = Lm.GetString("server_name");
-            status_name.Text = Lm.GetString("status_name");
         }
 
         private void InitializeNetwork()
@@ -67,22 +54,18 @@ namespace MiniLauncher
                     break;
                 case NetworkClientEventArgs.Callback.LOGIN_ACCOUNT_WRONG_LOGIN:
                     EnableLoginBtn(true);
-                    MessageBox.Show(Lm.GetString("WrongLogin"),
-                        Lm.GetString("Error"));
+                    MessageBox.Show("Неправильный логин!", "Ошибка!");
                     break;
                 case NetworkClientEventArgs.Callback.LOGIN_ACCOUNT_WRONG_PW:
                     EnableLoginBtn(true);
-                    MessageBox.Show(Lm.GetString("WrongPassword"),
-                        Lm.GetString("Error"));
+                    MessageBox.Show("Неправильный пароль!", "Ошибка!");
                     break;
                 case NetworkClientEventArgs.Callback.LOGIN_ACCOUNT_SERVER_CLOSED:
                     EnableLoginBtn(true);
-                    MessageBox.Show(Lm.GetString("ServerTechnicalWork"),
-                        Lm.GetString("Error"));
+                    MessageBox.Show("На сервере проводятся технические работы. Повторите попытку позже!", "Ошибка!");
                     break;
                 case NetworkClientEventArgs.Callback.LOGIN_ACCOUNT_BANNED:
-                    MessageBox.Show(Lm.GetString("AccountBlocked"),
-                        Lm.GetString("Error"));
+                    MessageBox.Show("Аккаунт заблокирован!", "Ошибка!");
                     break;
                 case NetworkClientEventArgs.Callback.SERVER_LIST_INFORM:
                     FillServerList(e.Servers);
@@ -94,6 +77,11 @@ namespace MiniLauncher
         }
         private void login_btn_Click(object sender, EventArgs e)
         {
+            if (LoginSelector.SelectedIndex >=0)
+            {
+                login_input.Text = MiniLauncher.Data.LauncherConfig.GetInstance.LoginsConfig.ClientLogin[LoginSelector.SelectedIndex];
+                password_input.Text = MiniLauncher.Data.LauncherConfig.GetInstance.LoginsConfig.ClientPassword[LoginSelector.SelectedIndex];
+            }
             if(!string.IsNullOrEmpty(login_input.Text) && !string.IsNullOrEmpty(password_input.Text) ||
                login_input.Text.Length <= 13 && password_input.Text.Length <= 13)
             {
@@ -102,15 +90,14 @@ namespace MiniLauncher
             }
             else
             {
-                MessageBox.Show(Lm.GetString("LoginPasswordCheck"),
-                    Lm.GetString("Error"));
+                MessageBox.Show("Поля логин и пароль должны быть заполнены и не превышать 13 символов!", "Ошибка!");
             }
         }
 
         private void ChangeStatus(bool ok)
         {
             Invoke(new Action(() => {
-                status_label.Text = ok ? Lm.GetString("StatusConnected") : Lm.GetString("StatusDisconected");
+                status_label.Text = ok ? "ПОДКЛЮЧЕН" : "ОТКЛЮЧЕН";
             }));
         }
         private void EnableLoginBtn(bool state)
@@ -128,7 +115,7 @@ namespace MiniLauncher
                     server_list.Enabled = true;
                     foreach (var server in _serverList)
                     {
-                        string serverStatus = server.b_ServerState == 1 ? Lm.GetString("WorldOpen") : Lm.GetString("WorlClose");
+                        string serverStatus = server.b_ServerState == 1 ? "Открыт" : "Закрыт";
                         server_list.Items.Add(new ListViewItem(new[] { server.s_ServerName, serverStatus }));
                     }
                 } else {
@@ -160,14 +147,6 @@ namespace MiniLauncher
         {
             networkClient.StopListen();
             Environment.Exit(0);
-        }
-        public static void ForAllControls(Control parent, Action<Control> action)
-        {
-            foreach (Control c in parent.Controls)
-            {
-                action(c);
-                ForAllControls(c, action);
-            }
         }
     }
 }
