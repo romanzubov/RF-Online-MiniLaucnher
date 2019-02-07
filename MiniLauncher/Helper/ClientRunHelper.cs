@@ -26,7 +26,8 @@ namespace MiniLauncher.Helper
         {
             if (!File.Exists(filepath))
             {
-                MessageBox.Show("RF_Online.bin не найден!", "Ошибка!",
+                MessageBox.Show(LocalizationManager.GetInstance.GetString("ExetubleFileNotFound"), 
+                    LocalizationManager.GetInstance.GetString("Error"),
                  MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
