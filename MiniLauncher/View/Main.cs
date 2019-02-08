@@ -115,6 +115,7 @@ namespace MiniLauncher
                 var iniParser = new IniFile(".\\MiniLauncher.ini");
                 //DefaultLogin DefaultPassword [ClientSetting]
                 iniParser.Write("DefaultLogin", login_input.Text, "ClientSetting");
+                iniParser.Write("DefaultPassword", password_input.Text, "ClientSetting");
             }
 
             if (!string.IsNullOrEmpty(login_input.Text) && !string.IsNullOrEmpty(password_input.Text) ||
