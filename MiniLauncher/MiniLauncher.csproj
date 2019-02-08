@@ -79,8 +79,6 @@
     <Compile Include="Network\Packets\pt_login_client.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Resources\Language.ru.resx" />
-    <EmbeddedResource Include="Resources\Language.en.resx" />
     <EmbeddedResource Include="View\Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
     </EmbeddedResource>
