@@ -24,16 +24,25 @@ namespace MiniLauncher
             InitializeComponent();
             InitLocalization();
             InitializeNetwork();
+            LoadDataToListbox();
         }
 
         private void InitLocalization()
         {
             ForAllControls(this, control =>
             {
-                control.Text = Lm.GetString(control.Name);
+             control.Text = Lm.GetString(control.Name);
             });
             server_name.Text = Lm.GetString("server_name");
             status_name.Text = Lm.GetString("status_name");
+        }
+        private void LoadDataToListbox()
+        {
+            var DataToListbox = LoginConfig.GetInstance.LoginsConfig;
+            for (int i = 0; i < DataToListbox.LoginNum; i++)
+            {
+                LoginSelector.Items.Add(DataToListbox.ClientLogin[i]);
+            }
         }
 
         private void InitializeNetwork()
@@ -96,8 +105,16 @@ namespace MiniLauncher
         {
             if (LoginSelector.SelectedIndex >= 0)
             {
-                login_input.Text = MiniLauncher.Data.LauncherConfig.GetInstance.LoginsConfig.ClientLogin[LoginSelector.SelectedIndex];
-                password_input.Text = MiniLauncher.Data.LauncherConfig.GetInstance.LoginsConfig.ClientPassword[LoginSelector.SelectedIndex];
+                var LoginsData = LoginConfig.GetInstance.LoginsConfig;
+                login_input.Text = LoginsData.ClientLogin[LoginSelector.SelectedIndex];
+                password_input.Text = LoginsData.ClientPassword[LoginSelector.SelectedIndex];
+            }
+
+            if (loginSave.Checked)
+            {
+                var iniParser = new IniFile(".\\MiniLauncher.ini");
+                //DefaultLogin DefaultPassword [ClientSetting]
+                iniParser.Write("DefaultLogin", login_input.Text, "ClientSetting");
             }
 
             if (!string.IsNullOrEmpty(login_input.Text) && !string.IsNullOrEmpty(password_input.Text) ||

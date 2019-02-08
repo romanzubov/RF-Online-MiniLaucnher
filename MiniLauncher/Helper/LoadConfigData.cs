@@ -31,11 +31,9 @@ namespace MiniLauncher.Helper
             // Section NationalSetting
             result = iniParser.KeyExists("OverrideNationalCode", "NationalSetting");
             // Section Client
-            keys = new string[5] { "DefaultSetTmpPath", "ClientBinaryPath", "ClientWorkingDirectory", "ClientLogin", "ClientPassword" };
+            keys = new string[5] { "DefaultSetTmpPath", "ClientBinaryPath", "ClientWorkingDirectory", "DefaultLogin", "DefaultPassword" };
             result = iniParser.KeysExists(keys, "ClientSetting");
-            // Logins Data
-            result = iniParser.KeyExists("LoginNum", "LoginsSetting");
-
+      
             if (result)
             {
                 //Section Server
@@ -51,29 +49,9 @@ namespace MiniLauncher.Helper
                 data.ClientConfig.DefaultSetTmpPath = iniParser.Read("DefaultSetTmpPath", "ClientSetting");
                 data.ClientConfig.ClientBinaryPath = iniParser.Read("ClientBinaryPath", "ClientSetting");
                 data.ClientConfig.ClientWorkingDirectory = iniParser.Read("ClientWorkingDirectory", "ClientSetting");
-                data.ClientConfig.ClientLogin = iniParser.Read("ClientLogin", "ClientSetting");
-                data.ClientConfig.ClientPassword = iniParser.Read("ClientPassword", "ClientSetting");
-                // Logins Data
-                data.LoginsConfig.LoginNum = Convert.ToInt32(iniParser.Read("LoginNum", "LoginsSetting"));
-                if (data.LoginsConfig.LoginNum > 0)
-                {
-                    data.LoginsConfig.ClientLogin = new string[10];
-                    data.LoginsConfig.ClientPassword = new string[10];
-                    int i;
-                    for (i = 0; i < data.LoginsConfig.LoginNum; i++)
-                    {
-                        string IsFillLogin = string.Format("{0}{1}", "ClientLogin", i);
-                        data.LoginsConfig.ClientLogin[i] = iniParser.Read(IsFillLogin, "LoginsSetting");
-                        if (data.LoginsConfig.ClientLogin[i] != "")
-                        {
-                            string Login = string.Format("{0}{1}", "ClientLogin", i);
-                            data.LoginsConfig.ClientLogin[i] = iniParser.Read(Login, "LoginsSetting");
-                            string Password = string.Format("{0}{1}", "ClientPassword", i);
-                            data.LoginsConfig.ClientPassword[i] = iniParser.Read(Password, "LoginsSetting");
-                        }
-                    }
-
-                }
+                data.ClientConfig.ClientLogin = iniParser.Read("DefaultLogin", "ClientSetting");
+                data.ClientConfig.ClientPassword = iniParser.Read("DefaultPassword", "ClientSetting");
+                
             }
 
             return result;

@@ -14,14 +14,11 @@ namespace MiniLauncher.Data
         public ServerSetting ServerConfig { get; set; }
         public NationalSetting NationalConfig { get; set; }
         public ClientSetting ClientConfig { get; set; }
-        public LoginsSetting LoginsConfig { get; set; }
-
         public LauncherConfig()
         {
             ServerConfig = new ServerSetting();
             NationalConfig = new NationalSetting();
             ClientConfig = new ClientSetting();
-            LoginsConfig = new LoginsSetting();
         }
     }
 
@@ -47,10 +44,4 @@ namespace MiniLauncher.Data
         public string ClientPassword { get; set; }
     }
 
-    public class LoginsSetting
-    {
-        public int LoginNum { get; set; }
-        public string[] ClientLogin { get; set; }
-        public string[] ClientPassword { get; set; }
-    }
 }

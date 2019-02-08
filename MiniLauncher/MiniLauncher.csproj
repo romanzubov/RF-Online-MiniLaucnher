@@ -62,9 +62,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\LauncherConfig.cs" />
+    <Compile Include="Data\LoginConfig.cs" />
     <Compile Include="Helper\ClientRunHelper.cs" />
     <Compile Include="Helper\IniHelper.cs" />
     <Compile Include="Helper\LoadConfigData.cs" />
+    <Compile Include="Helper\LoadLoginsData.cs" />
     <Compile Include="Helper\LocalizationManager.cs" />
     <Compile Include="Helper\Singleton.cs" />
     <Compile Include="View\Main.cs">
