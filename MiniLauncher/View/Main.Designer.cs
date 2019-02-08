@@ -28,6 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
+            var DefaultLogin = MiniLauncher.Data.LauncherConfig.GetInstance;
+
             this.login_input = new System.Windows.Forms.TextBox();
             this.login_label = new System.Windows.Forms.Label();
             this.password_label = new System.Windows.Forms.Label();
@@ -38,20 +40,23 @@
             this.server_list = new System.Windows.Forms.ListView();
             this.server_name = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.status_name = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.LoginSelector = new System.Windows.Forms.ComboBox();
+            this.loginSave = new System.Windows.Forms.CheckBox();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // login_input
             // 
-            this.login_input.Location = new System.Drawing.Point(56, 12);
+            this.login_input.Location = new System.Drawing.Point(57, 35);
             this.login_input.Name = "login_input";
-            this.login_input.Size = new System.Drawing.Size(166, 20);
+            this.login_input.Size = new System.Drawing.Size(162, 20);
             this.login_input.TabIndex = 0;
+            this.login_input.AppendText("LOGIN");//DefaultLogin.ClientConfig.ClientLogin;
             // 
             // login_label
             // 
             this.login_label.AutoSize = true;
-            this.login_label.Location = new System.Drawing.Point(12, 15);
+            this.login_label.Location = new System.Drawing.Point(13, 38);
             this.login_label.Name = "login_label";
             this.login_label.Size = new System.Drawing.Size(41, 13);
             this.login_label.TabIndex = 1;
@@ -60,7 +65,7 @@
             // password_label
             // 
             this.password_label.AutoSize = true;
-            this.password_label.Location = new System.Drawing.Point(6, 41);
+            this.password_label.Location = new System.Drawing.Point(7, 64);
             this.password_label.Name = "password_label";
             this.password_label.Size = new System.Drawing.Size(48, 13);
             this.password_label.TabIndex = 3;
@@ -68,16 +73,17 @@
             // 
             // password_input
             // 
-            this.password_input.Location = new System.Drawing.Point(56, 38);
+            this.password_input.Location = new System.Drawing.Point(57, 61);
             this.password_input.Name = "password_input";
-            this.password_input.Size = new System.Drawing.Size(166, 20);
+            this.password_input.Size = new System.Drawing.Size(162, 20);
             this.password_input.TabIndex = 2;
             this.password_input.UseSystemPasswordChar = true;
+            this.password_input.Text = DefaultLogin.ClientConfig.ClientPassword;
             // 
             // login_btn
             // 
             this.login_btn.Enabled = false;
-            this.login_btn.Location = new System.Drawing.Point(9, 64);
+            this.login_btn.Location = new System.Drawing.Point(10, 113);
             this.login_btn.Name = "login_btn";
             this.login_btn.Size = new System.Drawing.Size(213, 23);
             this.login_btn.TabIndex = 4;
@@ -89,7 +95,7 @@
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.status_label});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 289);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 329);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(231, 22);
             this.statusStrip1.TabIndex = 6;
@@ -107,7 +113,7 @@
             this.server_name,
             this.status_name});
             this.server_list.Enabled = false;
-            this.server_list.Location = new System.Drawing.Point(9, 93);
+            this.server_list.Location = new System.Drawing.Point(10, 142);
             this.server_list.Name = "server_list";
             this.server_list.Size = new System.Drawing.Size(213, 184);
             this.server_list.TabIndex = 7;
@@ -127,12 +133,31 @@
             this.status_name.Text = "Состояние";
             this.status_name.Width = 67;
             // 
+            // LoginSelector
+            // 
+            this.LoginSelector.FormattingEnabled = true;
+            this.LoginSelector.Location = new System.Drawing.Point(57, 5);
+            this.LoginSelector.Name = "LoginSelector";
+            this.LoginSelector.Size = new System.Drawing.Size(162, 21);
+            this.LoginSelector.TabIndex = 8;
+            // 
+            // loginSave
+            // 
+            this.loginSave.AutoSize = true;
+            this.loginSave.Location = new System.Drawing.Point(134, 87);
+            this.loginSave.Name = "loginSave";
+            this.loginSave.Size = new System.Drawing.Size(15, 14);
+            this.loginSave.TabIndex = 9;
+            this.loginSave.UseVisualStyleBackColor = true;
+            // 
             // Main
             // 
             this.AcceptButton = this.login_btn;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(231, 311);
+            this.ClientSize = new System.Drawing.Size(231, 351);
+            this.Controls.Add(this.loginSave);
+            this.Controls.Add(this.LoginSelector);
             this.Controls.Add(this.server_list);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.login_btn);
@@ -141,8 +166,8 @@
             this.Controls.Add(this.login_label);
             this.Controls.Add(this.login_input);
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(247, 350);
-            this.MinimumSize = new System.Drawing.Size(247, 350);
+            this.MaximumSize = new System.Drawing.Size(247, 390);
+            this.MinimumSize = new System.Drawing.Size(247, 390);
             this.Name = "Main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "MiniLauncher";
@@ -167,6 +192,8 @@
         private System.Windows.Forms.ColumnHeader server_name;
         private System.Windows.Forms.ColumnHeader status;
         private System.Windows.Forms.ColumnHeader status_name;
+        public System.Windows.Forms.ComboBox LoginSelector;
+        private System.Windows.Forms.CheckBox loginSave;
     }
 }
 

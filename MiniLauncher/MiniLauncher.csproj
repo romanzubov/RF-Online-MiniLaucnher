@@ -62,9 +62,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\LauncherConfig.cs" />
+    <Compile Include="Data\LoginConfig.cs" />
     <Compile Include="Helper\ClientRunHelper.cs" />
     <Compile Include="Helper\IniHelper.cs" />
     <Compile Include="Helper\LoadConfigData.cs" />
+    <Compile Include="Helper\LoadLoginsData.cs" />
     <Compile Include="Helper\LocalizationManager.cs" />
     <Compile Include="Helper\Singleton.cs" />
     <Compile Include="View\Main.cs">
@@ -79,6 +81,8 @@
     <Compile Include="Network\Packets\pt_login_client.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Resources\Language.ru.resx" />
+    <EmbeddedResource Include="Resources\Language.en.resx" />
     <EmbeddedResource Include="View\Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
     </EmbeddedResource>

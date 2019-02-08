@@ -31,9 +31,9 @@ namespace MiniLauncher.Helper
             // Section NationalSetting
             result = iniParser.KeyExists("OverrideNationalCode", "NationalSetting");
             // Section Client
-            keys = new string[3] { "DefaultSetTmpPath", "ClientBinaryPath", "ClientWorkingDirectory" };
+            keys = new string[5] { "DefaultSetTmpPath", "ClientBinaryPath", "ClientWorkingDirectory", "DefaultLogin", "DefaultPassword" };
             result = iniParser.KeysExists(keys, "ClientSetting");
-
+      
             if (result)
             {
                 //Section Server
@@ -49,6 +49,9 @@ namespace MiniLauncher.Helper
                 data.ClientConfig.DefaultSetTmpPath = iniParser.Read("DefaultSetTmpPath", "ClientSetting");
                 data.ClientConfig.ClientBinaryPath = iniParser.Read("ClientBinaryPath", "ClientSetting");
                 data.ClientConfig.ClientWorkingDirectory = iniParser.Read("ClientWorkingDirectory", "ClientSetting");
+                data.ClientConfig.ClientLogin = iniParser.Read("DefaultLogin", "ClientSetting");
+                data.ClientConfig.ClientPassword = iniParser.Read("DefaultPassword", "ClientSetting");
+                
             }
 
             return result;
