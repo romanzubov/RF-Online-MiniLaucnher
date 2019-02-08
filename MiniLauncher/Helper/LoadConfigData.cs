@@ -35,7 +35,6 @@ namespace MiniLauncher.Helper
             result = iniParser.KeysExists(keys, "ClientSetting");
             // Logins Data
             result = iniParser.KeyExists("LoginNum", "LoginsSetting");
-            
 
             if (result)
             {
@@ -61,20 +60,20 @@ namespace MiniLauncher.Helper
                     data.LoginsConfig.ClientLogin = new string[10];
                     data.LoginsConfig.ClientPassword = new string[10];
                     int i;
-                    for (i = 0;  i < data.LoginsConfig.LoginNum; i++)
+                    for (i = 0; i < data.LoginsConfig.LoginNum; i++)
                     {
                         string IsFillLogin = string.Format("{0}{1}", "ClientLogin", i);
                         data.LoginsConfig.ClientLogin[i] = iniParser.Read(IsFillLogin, "LoginsSetting");
-                        if (data.LoginsConfig.ClientLogin[i] != "") {
+                        if (data.LoginsConfig.ClientLogin[i] != "")
+                        {
                             string Login = string.Format("{0}{1}", "ClientLogin", i);
                             data.LoginsConfig.ClientLogin[i] = iniParser.Read(Login, "LoginsSetting");
                             string Password = string.Format("{0}{1}", "ClientPassword", i);
                             data.LoginsConfig.ClientPassword[i] = iniParser.Read(Password, "LoginsSetting");
                         }
                     }
-                    
-                }
 
+                }
             }
 
             return result;
