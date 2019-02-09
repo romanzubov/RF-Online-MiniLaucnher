@@ -24,16 +24,25 @@ namespace MiniLauncher
             InitializeComponent();
             InitLocalization();
             InitializeNetwork();
+            LoadDataToListbox();
         }
 
         private void InitLocalization()
         {
             ForAllControls(this, control =>
             {
-                control.Text = Lm.GetString(control.Name);
+             control.Text = Lm.GetString(control.Name);
             });
             server_name.Text = Lm.GetString("server_name");
             status_name.Text = Lm.GetString("status_name");
+        }
+        private void LoadDataToListbox()
+        {
+            var DataToListbox = LoginConfig.GetInstance.LoginsConfig;
+            for (int i = 0; i < DataToListbox.LoginNum; i++)
+            {
+                LoginSelector.Items.Add(DataToListbox.ClientLogin[i]);
+            }
         }
 
         private void InitializeNetwork()
@@ -94,7 +103,22 @@ namespace MiniLauncher
         }
         private void login_btn_Click(object sender, EventArgs e)
         {
-            if(!string.IsNullOrEmpty(login_input.Text) && !string.IsNullOrEmpty(password_input.Text) ||
+            if (LoginSelector.SelectedIndex >= 0)
+            {
+                var LoginsData = LoginConfig.GetInstance.LoginsConfig;
+                login_input.Text = LoginsData.ClientLogin[LoginSelector.SelectedIndex];
+                password_input.Text = LoginsData.ClientPassword[LoginSelector.SelectedIndex];
+            }
+
+            if (loginSave.Checked)
+            {
+                var iniParser = new IniFile(".\\MiniLauncher.ini");
+                //DefaultLogin DefaultPassword [ClientSetting]
+                iniParser.Write("DefaultLogin", login_input.Text, "ClientSetting");
+                iniParser.Write("DefaultPassword", password_input.Text, "ClientSetting");
+            }
+
+            if (!string.IsNullOrEmpty(login_input.Text) && !string.IsNullOrEmpty(password_input.Text) ||
                login_input.Text.Length <= 13 && password_input.Text.Length <= 13)
             {
                 networkClient.DoLogin(login_input.Text, password_input.Text);

@@ -17,6 +17,8 @@ namespace MiniLauncher
         {
             if (!InitConfig())
                 return;
+            if (!InitLoginsData())
+                return;
 
             if (!InitLocalization())
                 return;
@@ -49,6 +51,27 @@ namespace MiniLauncher
                     LocalizationManager.GetInstance.GetString("Error"));
                 return false;
             }
+
+
+            return true;
+        }
+        private static bool InitLoginsData()
+        {
+            var configLoader = new LoadLoginsData(".\\LoginsData.txt");
+            if (!configLoader.IsExist())
+            {
+                MessageBox.Show(LocalizationManager.GetInstance.GetString("LoginsNotFound"),
+                    LocalizationManager.GetInstance.GetString("Error"));
+                return false;
+            }
+
+            if (!configLoader.Load())
+            {
+                MessageBox.Show(LocalizationManager.GetInstance.GetString("LoginsDataFileReadError"),
+                    LocalizationManager.GetInstance.GetString("Error"));
+                return false;
+            }
+
 
             return true;
         }
