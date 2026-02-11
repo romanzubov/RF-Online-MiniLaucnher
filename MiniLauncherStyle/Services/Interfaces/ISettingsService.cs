@@ -39,6 +39,12 @@ namespace MiniLauncherStyle.Services.Interfaces
         void ClearCredentials();
 
         /// <summary>
+        /// Сохраняет язык (код нации).
+        /// </summary>
+        /// <param name="nationCode">Код нации (например, "en_gb")</param>
+        void SaveLanguage(string nationCode);
+
+        /// <summary>
         /// Получает флаг необходимости обновления клиента.
         /// </summary>
         bool ClientUpdateRequired { get; set; }

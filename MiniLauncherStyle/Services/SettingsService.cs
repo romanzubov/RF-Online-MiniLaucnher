@@ -1,6 +1,7 @@
 using MiniLauncher.Helper;
 using MiniLauncher.Utils;
 using MiniLauncherStyle.Data;
+using MiniLauncherStyle.Helper;
 using MiniLauncherStyle.Services.Interfaces;
 using System;
 using System.IO;
@@ -182,6 +183,24 @@ namespace MiniLauncherStyle.Services
             catch
             {
                 // Игнорируем ошибки удаления
+            }
+        }
+
+        /// <summary>
+        /// Сохраняет язык (код нации).
+        /// </summary>
+        /// <param name="nationCode">Код нации (например, "en_gb")</param>
+        public void SaveLanguage(string nationCode)
+        {
+            try
+            {
+                var configuration = new IniFile(ConfigFileName);
+                var encoded = NationCodeHelper.EncodeNationCode(nationCode);
+                configuration.Write("Language", encoded, "Setup");
+            }
+            catch
+            {
+                // Игнорируем ошибки записи
             }
         }
     }

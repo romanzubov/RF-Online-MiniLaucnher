@@ -21,30 +21,6 @@ namespace MiniLauncherStyle.Services
         }
 
         /// <summary>
-        /// Запускает игровой клиент.
-        /// </summary>
-        public void LaunchGame(string login, string password, bool rememberLogin, Action<bool, string> onComplete)
-        {
-            try
-            {
-                var clientCfg = LauncherConfig.GetInstance.ClientConfig;
-                
-                // Проверяем существование клиента
-                if (!File.Exists(clientCfg.ClientBinaryPath))
-                {
-                    onComplete?.Invoke(false, "Client executable not found");
-                    return;
-                }
-
-                onComplete?.Invoke(true, null);
-            }
-            catch (Exception ex)
-            {
-                onComplete?.Invoke(false, ex.Message);
-            }
-        }
-
-        /// <summary>
         /// Запускает клиент игры с данными сессии.
         /// </summary>
         public void RunGameClient(Default_Set defaultSet)
@@ -72,17 +48,6 @@ namespace MiniLauncherStyle.Services
                 }
             }
             return false;
-        }
-
-        /// <summary>
-        /// Получает BackgroundWorker для асинхронного запуска игры.
-        /// </summary>
-        public BackgroundWorker CreateLaunchWorker()
-        {
-            var worker = new BackgroundWorker();
-            worker.WorkerReportsProgress = true;
-            worker.WorkerSupportsCancellation = true;
-            return worker;
         }
     }
 }

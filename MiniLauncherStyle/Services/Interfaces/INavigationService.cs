@@ -35,6 +35,11 @@ namespace MiniLauncherStyle.Services.Interfaces
         void CloseCurrentWindow();
 
         /// <summary>
+        /// Перезапускает приложение.
+        /// </summary>
+        void RestartApplication();
+
+        /// <summary>
         /// Выходит из приложения.
         /// </summary>
         void ExitApplication();

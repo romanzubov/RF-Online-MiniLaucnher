@@ -72,6 +72,24 @@ namespace MiniLauncherStyle.Services
         }
 
         /// <summary>
+        /// Перезапускает приложение.
+        /// </summary>
+        public void RestartApplication()
+        {
+            string exePath = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName;
+            
+            if (!string.IsNullOrEmpty(exePath))
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(exePath)
+                {
+                    UseShellExecute = true
+                });
+            }
+            
+            System.Windows.Application.Current.Shutdown();
+        }
+
+        /// <summary>
         /// Выходит из приложения.
         /// </summary>
         public void ExitApplication()

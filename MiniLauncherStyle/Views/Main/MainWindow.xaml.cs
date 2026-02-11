@@ -6,14 +6,11 @@ using MiniLauncher.Updater;
 using MiniLauncher.Utils;
 using MiniLauncherStyle.Core;
 using MiniLauncherStyle.Data;
-using MiniLauncherStyle.Helper;
 using MiniLauncherStyle.Services;
 using MiniLauncherStyle.Services.Interfaces;
 using MiniLauncherStyle.ViewModels;
-using MiniLauncherStyle.Views.Settings;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading;
@@ -45,6 +42,7 @@ namespace MiniLauncherStyle
         private readonly IDialogService _dialogService;
         private readonly INavigationService _navigationService;
         private readonly IGameService _gameService;
+        private readonly ISettingsService _settingsService;
 
         public MainWindow()
         {
@@ -56,6 +54,7 @@ namespace MiniLauncherStyle
             _dialogService = ServiceLocator.Current.Get<IDialogService>();
             _navigationService = ServiceLocator.Current.Get<INavigationService>();
             _gameService = ServiceLocator.Current.Get<IGameService>();
+            _settingsService = ServiceLocator.Current.Get<ISettingsService>();
             
             // Создание ViewModel
             ViewModel = new MainViewModel(contentService, _dialogService);
@@ -703,29 +702,17 @@ namespace MiniLauncherStyle
 
         private void LanguageSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var configuration = new IniFile(".\\R3Engine.ini");
-
             if (language.SelectedItem is ComboBoxItem item)
             {
                 var nation = item.Tag.ToString().Replace('-', '_');
                 
-                var encoded = NationCodeHelper.EncodeNationCode(nation);
-
                 if (nation == LauncherConfig.GetInstance.NationalConfig.NationCode.ToString())
                 {
                     return;
                 }
                 
-                configuration.Write("Language", encoded, "Setup");
-                
-                string exePath = Process.GetCurrentProcess().MainModule?.FileName;
-
-                Process.Start(new ProcessStartInfo(exePath)
-                {
-                    UseShellExecute = true
-                });
-
-                System.Windows.Application.Current.Shutdown();
+                _settingsService.SaveLanguage(nation);
+                _navigationService.RestartApplication();
             }
         }
     }
