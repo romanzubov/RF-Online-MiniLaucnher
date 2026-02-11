@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MiniLauncherStyle.Views.Settings"
+        xmlns:loc="clr-namespace:MiniLauncherStyle.Extensions"
         xmlns:vm="clr-namespace:MiniLauncherStyle.ViewModels"
         mc:Ignorable="d"
         Title="SettingsWindow" Height="336" Width="700" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="None" Icon="favicon.ico">
@@ -68,25 +69,25 @@
                         <ImageBrush ImageSource="settings_block_2.png"/>
                     </Rectangle.Fill>
                 </Rectangle>
-                <TextBlock x:Name="settings_videoadapter_label" HorizontalAlignment="Left" Height="19" Margin="15,-5.425,0,0" TextWrapping="Wrap" Text="Настройки видеокарты" VerticalAlignment="Top" Width="126.333" Foreground="#FF8CFFFA" FontSize="10"/>
-                <TextBlock x:Name="settings_screen_resolution_label" HorizontalAlignment="Left" Height="19" Margin="15,45,0,0" TextWrapping="Wrap" Text="Разрешение экрана" VerticalAlignment="Top" Width="126.333" Foreground="#FF8CFFFA" FontSize="10"/>
-                <TextBlock x:Name="settings_music_label" HorizontalAlignment="Left" Height="19" Margin="15,101.001,0,0" TextWrapping="Wrap" Text="Настройка звука" VerticalAlignment="Top" Width="126.333" Foreground="#FF8CFFFA" FontSize="10"/>
-                <TextBlock x:Name="other_label" HorizontalAlignment="Left" Height="19" Margin="15,155.336,0,0" TextWrapping="Wrap" Text="Настройка мыши" VerticalAlignment="Top" Width="126.333" Foreground="#FF8CFFFA" FontSize="10"/>
-                <TextBlock x:Name="settings_gamma_label" HorizontalAlignment="Left" Height="19" Margin="16.334,206.338,0,0" TextWrapping="Wrap" Text="Гамма" VerticalAlignment="Top" Width="85" Foreground="#FF8CFFFA" FontSize="10"/>
-                <TextBlock x:Name="settings_texture_quality_label" HorizontalAlignment="Left" Height="19" Margin="273.834,-4.425,0,0" TextWrapping="Wrap" Text="Качество текстур" VerticalAlignment="Top" Width="85" Foreground="#FF8CFFFA" FontSize="10"/>
-                <TextBlock x:Name="settings_lightning_quality_label" HorizontalAlignment="Left" Height="19" Margin="272.334,67.214,0,0" TextWrapping="Wrap" Text="Качество освещения" VerticalAlignment="Top" Width="99" Foreground="#FF8CFFFA" FontSize="10"/>
-                <TextBlock x:Name="settings_illimination_quality_label" HorizontalAlignment="Left" Height="19" Margin="272.334,135.837,0,0" TextWrapping="Wrap" Text="Эффекты свечения" VerticalAlignment="Top" Width="99" Foreground="#FF8CFFFA" FontSize="10"/>
-                <TextBlock x:Name="settings_shadow_quality_label" HorizontalAlignment="Left" Height="19" Margin="272.334,206.338,0,0" TextWrapping="Wrap" Text="Качесво теней" VerticalAlignment="Top" Width="99" Foreground="#FF8CFFFA" FontSize="10"/>
-                <TextBlock x:Name="launcher_settings_lable" HorizontalAlignment="Left" Height="19" Margin="523.834,-27.092,-142.501,0" TextWrapping="Wrap" Text="Настройка лаунчера" VerticalAlignment="Top" Width="101.667" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="settings_videoadapter_label" HorizontalAlignment="Left" Height="19" Margin="15,-5.425,0,0" TextWrapping="Wrap" Text="{loc:Loc Key=settings_videoadapter_label}" VerticalAlignment="Top" Width="126.333" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="settings_screen_resolution_label" HorizontalAlignment="Left" Height="19" Margin="15,45,0,0" TextWrapping="Wrap" Text="{loc:Loc Key=settings_screen_resolution_label}" VerticalAlignment="Top" Width="126.333" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="settings_music_label" HorizontalAlignment="Left" Height="19" Margin="15,101.001,0,0" TextWrapping="Wrap" Text="{loc:Loc Key=settings_music_label}" VerticalAlignment="Top" Width="126.333" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="other_label" HorizontalAlignment="Left" Height="19" Margin="15,155.336,0,0" TextWrapping="Wrap" Text="{loc:Loc Key=other_label}" VerticalAlignment="Top" Width="126.333" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="settings_gamma_label" HorizontalAlignment="Left" Height="19" Margin="16.334,206.338,0,0" TextWrapping="Wrap" Text="{loc:Loc Key=settings_gamma_label}" VerticalAlignment="Top" Width="85" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="settings_texture_quality_label" HorizontalAlignment="Left" Height="19" Margin="273.834,-4.425,0,0" TextWrapping="Wrap" Text="{loc:Loc Key=settings_texture_quality_label}" VerticalAlignment="Top" Width="85" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="settings_lightning_quality_label" HorizontalAlignment="Left" Height="19" Margin="272.334,67.214,0,0" TextWrapping="Wrap" Text="{loc:Loc Key=settings_lightning_quality_label}" VerticalAlignment="Top" Width="99" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="settings_illimination_quality_label" HorizontalAlignment="Left" Height="19" Margin="272.334,135.837,0,0" TextWrapping="Wrap" Text="{loc:Loc Key=settings_illimination_quality_label}" VerticalAlignment="Top" Width="99" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="settings_shadow_quality_label" HorizontalAlignment="Left" Height="19" Margin="272.334,206.338,0,0" TextWrapping="Wrap" Text="{loc:Loc Key=settings_shadow_quality_label}" VerticalAlignment="Top" Width="99" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="launcher_settings_lable" HorizontalAlignment="Left" Height="19" Margin="523.834,-27.092,-142.501,0" TextWrapping="Wrap" Text="{loc:Loc Key=launcher_settings_lable}" VerticalAlignment="Top" Width="101.667" Foreground="#FF8CFFFA" FontSize="10"/>
                 <ComboBox x:Name="video_adapter_list" HorizontalAlignment="Left" Margin="15,18.575,0,0" VerticalAlignment="Top" Width="234" Height="6"/>
                 <ComboBox x:Name="resolution_list" HorizontalAlignment="Left" Margin="15,66.214,0,0" VerticalAlignment="Top" Width="126.333" Height="6"/>
-                <CheckBox x:Name="window_mode_check" Content="Игра в окне" HorizontalAlignment="Left" Margin="151.801,68.214,0,0" VerticalAlignment="Top" Foreground="#FF8CFFFA" FontSize="10" Height="18" Width="80.199" IsChecked="{Binding IsWindowMode, Mode=TwoWay}"/>
-                <CheckBox x:Name="music_check" Content="Музыка" HorizontalAlignment="Left" Margin="15.135,128.047,0,0" VerticalAlignment="Top" Foreground="#FF8CFFFA" FontSize="10" Height="18" Width="80.199" IsChecked="{Binding IsMusicEnabled, Mode=TwoWay}"/>
-                <CheckBox x:Name="effects_check" Content="Эффекты" HorizontalAlignment="Left" Margin="185.801,128.047,0,0" VerticalAlignment="Top" Foreground="#FF8CFFFA" FontSize="10" Height="18" Width="63.199" IsChecked="{Binding IsSoundEnabled, Mode=TwoWay}"/>
-                <TextBlock x:Name="other_label_Copy" HorizontalAlignment="Left" Height="19" Margin="15,172.336,0,0" TextWrapping="Wrap" Text="Ускорение курсора" VerticalAlignment="Top" Width="126.333" Foreground="#FF8CFFFA" FontSize="10"/>
-                <TextBlock x:Name="other_label_Copy1" HorizontalAlignment="Left" Height="19" Margin="15,187.336,0,0" TextWrapping="Wrap" Text="Детализация текстур" VerticalAlignment="Top" Width="126.333" Foreground="#FF8CFFFA" FontSize="10"/>
-                <CheckBox x:Name="mouse_acceleration_check" Content="Выключено" HorizontalAlignment="Left" Margin="168.801,172.546,0,0" VerticalAlignment="Top" Foreground="#FF8CFFFA" FontSize="10" Height="18" Width="80.199" IsChecked="{Binding IsMouseAcceleration, Mode=TwoWay}"/>
-                <CheckBox x:Name="texture_detalization_check" Content="Включено" HorizontalAlignment="Left" Margin="168.801,187.885,0,0" VerticalAlignment="Top" Foreground="#FF8CFFFA" FontSize="10" Height="18" Width="80.199" IsChecked="{Binding IsDetailTexture, Mode=TwoWay}"/>
+                <CheckBox x:Name="window_mode_check" Content="{loc:Loc Key=window_mode_check}" HorizontalAlignment="Left" Margin="151.801,68.214,0,0" VerticalAlignment="Top" Foreground="#FF8CFFFA" FontSize="10" Height="18" Width="80.199" IsChecked="{Binding IsWindowMode, Mode=TwoWay}"/>
+                <CheckBox x:Name="music_check" Content="{loc:Loc Key=music_check}" HorizontalAlignment="Left" Margin="15.135,128.047,0,0" VerticalAlignment="Top" Foreground="#FF8CFFFA" FontSize="10" Height="18" Width="80.199" IsChecked="{Binding IsMusicEnabled, Mode=TwoWay}"/>
+                <CheckBox x:Name="effects_check" Content="{loc:Loc Key=effects_check}" HorizontalAlignment="Left" Margin="185.801,128.047,0,0" VerticalAlignment="Top" Foreground="#FF8CFFFA" FontSize="10" Height="18" Width="63.199" IsChecked="{Binding IsSoundEnabled, Mode=TwoWay}"/>
+                <TextBlock x:Name="other_label_Copy" HorizontalAlignment="Left" Height="19" Margin="15,172.336,0,0" TextWrapping="Wrap" Text="{loc:Loc Key=settings_mouse_acceleration_label}" VerticalAlignment="Top" Width="126.333" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="other_label_Copy1" HorizontalAlignment="Left" Height="19" Margin="15,187.336,0,0" TextWrapping="Wrap" Text="{loc:Loc Key=settings_texture_detalization_label}" VerticalAlignment="Top" Width="126.333" Foreground="#FF8CFFFA" FontSize="10"/>
+                <CheckBox x:Name="mouse_acceleration_check" Content="{loc:Loc Key=settings_label_disable}" HorizontalAlignment="Left" Margin="168.801,172.546,0,0" VerticalAlignment="Top" Foreground="#FF8CFFFA" FontSize="10" Height="18" Width="80.199" IsChecked="{Binding IsMouseAcceleration, Mode=TwoWay}"/>
+                <CheckBox x:Name="texture_detalization_check" Content="{loc:Loc Key=settings_label_enabled}" HorizontalAlignment="Left" Margin="168.801,187.885,0,0" VerticalAlignment="Top" Foreground="#FF8CFFFA" FontSize="10" Height="18" Width="80.199" IsChecked="{Binding IsDetailTexture, Mode=TwoWay}"/>
                 <TextBlock x:Name="gamma_label" HorizontalAlignment="Left" Height="19" Margin="185.801,234.684,0,0" TextWrapping="Wrap" Text="{Binding GammaLabel, FallbackValue='1.0'}" VerticalAlignment="Top" Width="22" Foreground="#FF8CFFFA" FontSize="10"/>
                 <TextBlock x:Name="texture_quality_label" HorizontalAlignment="Left" Height="19" Margin="421.801,19.575,0,0" TextWrapping="Wrap" Text="{Binding TextureQualityLabel, FallbackValue='Низкое'}" VerticalAlignment="Top" Width="61.199" Foreground="#FF8CFFFA" FontSize="10"/>
                 <TextBlock x:Name="lightning_quality_label" HorizontalAlignment="Left" Height="19" Margin="421.801,90.211,-2,0" TextWrapping="Wrap" Text="{Binding LightningQualityLabel, FallbackValue='Выключено'}" VerticalAlignment="Top" Width="63.199" Foreground="#FF8CFFFA" FontSize="10"/>
@@ -104,28 +105,28 @@
                 <ImageBrush ImageSource="settings_block_3.png"/>
             </Rectangle.Fill>
         </Rectangle>
-        <CheckBox x:Name="close_launcher_after_login" Content="Закрывать после входа?" HorizontalAlignment="Left" Margin="539.999,96.998,0,0" VerticalAlignment="Top" Foreground="#FF8CFFFA" FontSize="10" Height="18" Width="148.667" IsChecked="{Binding CloseLauncherAfterLogin, Mode=TwoWay}"/>
+        <CheckBox x:Name="close_launcher_after_login" Content="{loc:Loc Key=close_after_login}" HorizontalAlignment="Left" Margin="539.999,96.998,0,0" VerticalAlignment="Top" Foreground="#FF8CFFFA" FontSize="10" Height="18" Width="148.667" IsChecked="{Binding CloseLauncherAfterLogin, Mode=TwoWay}"/>
         <Rectangle HorizontalAlignment="Left" Height="70" Margin="525.663,122.927,0,0" Stroke="#00000000" VerticalAlignment="Top" Width="170">
             <Rectangle.Fill>
                 <ImageBrush ImageSource="settings_block_4.png"/>
             </Rectangle.Fill>
         </Rectangle>
-        <Button x:Name="btn_save" Style="{StaticResource ScaleButton}" Content="Сохранить" HorizontalAlignment="Left" Height="22" Margin="553,131.501,0,0" VerticalAlignment="Top" Width="118" Foreground="White" FontSize="9" Click="Btn_save_Click">
+        <Button x:Name="btn_save" Style="{StaticResource ScaleButton}" Content="{loc:Loc Key=btn_save}" HorizontalAlignment="Left" Height="22" Margin="553,131.501,0,0" VerticalAlignment="Top" Width="118" Foreground="White" FontSize="9" Click="Btn_save_Click">
             <Button.Background>
                 <ImageBrush ImageSource="btn.png"/>
             </Button.Background>
         </Button>
-        <Button x:Name="btn_cancel" Style="{StaticResource ScaleButton}" Content="Оменить" HorizontalAlignment="Left" Height="22" Margin="553,161.837,0,0" VerticalAlignment="Top" Width="118" Foreground="White" FontSize="9" Click="Btn_cancel_Click">
+        <Button x:Name="btn_cancel" Style="{StaticResource ScaleButton}" Content="{loc:Loc Key=btn_cancel}" HorizontalAlignment="Left" Height="22" Margin="553,161.837,0,0" VerticalAlignment="Top" Width="118" Foreground="White" FontSize="9" Click="Btn_cancel_Click">
             <Button.Background>
                 <ImageBrush ImageSource="btn.png"/>
             </Button.Background>
         </Button>
-        <Button x:Name="btn_clean_passwords" Style="{StaticResource ScaleButton}" Content="Очистить пароли" HorizontalAlignment="Left" Height="22" Margin="532.333,43.665,0,0" VerticalAlignment="Top" Width="156.333" Foreground="White" FontSize="9" Click="Btn_clean_passwords_Click">
+        <Button x:Name="btn_clean_passwords" Style="{StaticResource ScaleButton}" Content="{loc:Loc Key=btn_clean_passwords}" HorizontalAlignment="Left" Height="22" Margin="532.333,43.665,0,0" VerticalAlignment="Top" Width="156.333" Foreground="White" FontSize="9" Click="Btn_clean_passwords_Click">
             <Button.Background>
                 <ImageBrush ImageSource="btn.png"/>
             </Button.Background>
         </Button>
-        <Button x:Name="btn_repair_client" Style="{StaticResource ScaleButton}" Content="Починить клиент" HorizontalAlignment="Left" Height="22" Margin="532.333,69.998,0,0" VerticalAlignment="Top" Width="156.333" Foreground="White" FontSize="9" Click="Btn_repair_client_Click">
+        <Button x:Name="btn_repair_client" Style="{StaticResource ScaleButton}" Content="{loc:Loc Key=btn_repair_client}" HorizontalAlignment="Left" Height="22" Margin="532.333,69.998,0,0" VerticalAlignment="Top" Width="156.333" Foreground="White" FontSize="9" Click="Btn_repair_client_Click">
             <Button.Background>
                 <ImageBrush ImageSource="btn.png"/>
             </Button.Background>
