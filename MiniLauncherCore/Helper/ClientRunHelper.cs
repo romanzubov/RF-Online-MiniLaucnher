@@ -1,0 +1,45 @@
+﻿using MiniLauncher.Network.BinaryConverter;
+using MiniLauncher.Network.Packets;
+using MiniLauncher.Utils;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+
+namespace MiniLauncher.Helper
+{
+    public static class ClientRunHelper
+    {
+        public static void WriteTmp(string path, Default_Set data)
+        {
+            if (!Directory.Exists(Path.GetDirectoryName(path)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
+            }
+            data.encrypt();
+            byte[] bDefaultSet = BinaryStructConverter.ToByteArray(data);
+            File.WriteAllBytes(path, bDefaultSet);
+        }
+        public static void RunClient(string filepath)
+        {
+            if (!File.Exists(filepath))
+            {
+                SimpleLogger.GetInstance.Warning($"{LocalizationManager.GetInstance.GetString("ExetubleFileNotFound")}");
+                MessageBox.Show(LocalizationManager.GetInstance.GetString("ExetubleFileNotFound"), 
+                    LocalizationManager.GetInstance.GetString("Error"),
+                 MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            Process clientProcess = new Process();
+            clientProcess.StartInfo.CreateNoWindow = false;
+            clientProcess.StartInfo.FileName = filepath;
+            clientProcess.StartInfo.WorkingDirectory = ".\\";
+            clientProcess.StartInfo.UseShellExecute = false;
+            clientProcess.Start();
+        }
+    }
+}

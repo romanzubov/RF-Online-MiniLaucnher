@@ -14,17 +14,19 @@ namespace MiniLauncher.Data
         public ServerSetting ServerConfig { get; set; }
         public NationalSetting NationalConfig { get; set; }
         public ClientSetting ClientConfig { get; set; }
-
+        public UpdateSetting UpdateConfig { get; set; }
         public LauncherConfig()
         {
             ServerConfig = new ServerSetting();
             NationalConfig = new NationalSetting();
             ClientConfig = new ClientSetting();
+            UpdateConfig = new UpdateSetting();
         }
     }
 
     public class ServerSetting
     {
+        public string Title { get; set; }
         public string LogginAddress { get; set; }
         public string ServerAddress { get; set; }
         public bool OverrideServerAddress { get; set; }
@@ -41,5 +43,21 @@ namespace MiniLauncher.Data
         public string DefaultSetTmpPath { get; set; }
         public string ClientBinaryPath { get; set; }
         public string ClientWorkingDirectory { get; set; }
+    }
+    public enum UpdateType
+    {
+        HTTP,
+        TORRENT
+    }
+    public class UpdateSetting
+    {
+        public bool ClientUpdateEnable { get; set; }
+        public bool PatchUpdateEnable { get; set; }
+        public string UpdateServerClient { get; set; }
+        public string UpdateServerPatch { get; set; }
+        public string UpdateLauncherUrl { get; set; }
+        public string UpdateUIUrl { get; set; }
+        public UpdateType UpdateType { get; set; }
+        public int CountParallelDownload { get; set; }
     }
 }

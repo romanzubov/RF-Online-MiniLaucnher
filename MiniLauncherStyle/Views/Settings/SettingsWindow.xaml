@@ -1,0 +1,139 @@
+﻿<Window x:Class="MiniLauncherStyle.Views.Settings.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MiniLauncherStyle.Views.Settings"
+        mc:Ignorable="d"
+        Title="SettingsWindow" Height="336" Width="700" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="None" Icon="favicon.ico">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="SliderStyle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid Margin="0,0,-1,0" Loaded="Grid_Loaded">
+        <Grid.Background>
+            <ImageBrush ImageSource="Background.png"/>
+        </Grid.Background>
+        <Grid HorizontalAlignment="Left" Height="303" Margin="3.997,28.427,0,0" VerticalAlignment="Top" Width="518">
+            <Grid.Background>
+                <ImageBrush ImageSource="block_bg.png"/>
+            </Grid.Background>
+            <Grid x:Name="panales" Margin="10,21.333,25,17.983">
+                <Rectangle HorizontalAlignment="Left" Height="45" Stroke="#00000000" Width="252" VerticalAlignment="Top" Margin="6,2,0,0">
+                    <Rectangle.Fill>
+                        <ImageBrush ImageSource="settings_block_1.png"/>
+                    </Rectangle.Fill>
+                </Rectangle>
+                <Rectangle HorizontalAlignment="Left" Height="45" Margin="6,52,0,0" Stroke="#00000000" Width="252" VerticalAlignment="Top">
+                    <Rectangle.Fill>
+                        <ImageBrush ImageSource="settings_block_1.png"/>
+                    </Rectangle.Fill>
+                </Rectangle>
+                <Rectangle HorizontalAlignment="Left" Height="45" Margin="6,109.337,0,0" Stroke="#00000000" Width="252" VerticalAlignment="Top">
+                    <Rectangle.Fill>
+                        <ImageBrush ImageSource="settings_block_1.png"/>
+                    </Rectangle.Fill>
+                </Rectangle>
+                <Rectangle HorizontalAlignment="Left" Height="45" Margin="6,162.672,0,0" Stroke="#00000000" Width="252" VerticalAlignment="Top">
+                    <Rectangle.Fill>
+                        <ImageBrush ImageSource="settings_block_1.png"/>
+                    </Rectangle.Fill>
+                </Rectangle>
+                <Rectangle HorizontalAlignment="Left" Height="53" Margin="6,212.672,0,-1.988" Stroke="#00000000" Width="226" VerticalAlignment="Top">
+                    <Rectangle.Fill>
+                        <ImageBrush ImageSource="settings_block_2.png"/>
+                    </Rectangle.Fill>
+                </Rectangle>
+                <Rectangle HorizontalAlignment="Left" Height="53" Margin="263,2,-6,0" Stroke="#00000000" Width="226" VerticalAlignment="Top">
+                    <Rectangle.Fill>
+                        <ImageBrush ImageSource="settings_block_2.png"/>
+                    </Rectangle.Fill>
+                </Rectangle>
+                <Rectangle HorizontalAlignment="Left" Height="53" Margin="263,73.004,-6,0" Stroke="#00000000" Width="226" VerticalAlignment="Top">
+                    <Rectangle.Fill>
+                        <ImageBrush ImageSource="settings_block_2.png"/>
+                    </Rectangle.Fill>
+                </Rectangle>
+                <Rectangle HorizontalAlignment="Left" Height="53" Margin="263,142.675,-6,0" Stroke="#00000000" Width="226" VerticalAlignment="Top">
+                    <Rectangle.Fill>
+                        <ImageBrush ImageSource="settings_block_2.png"/>
+                    </Rectangle.Fill>
+                </Rectangle>
+                <Rectangle HorizontalAlignment="Left" Height="53" Margin="263,212.684,-6,-2" Stroke="#00000000" Width="226" VerticalAlignment="Top">
+                    <Rectangle.Fill>
+                        <ImageBrush ImageSource="settings_block_2.png"/>
+                    </Rectangle.Fill>
+                </Rectangle>
+                <TextBlock x:Name="settings_videoadapter_label" HorizontalAlignment="Left" Height="19" Margin="15,-5.425,0,0" TextWrapping="Wrap" Text="Настройки видеокарты" VerticalAlignment="Top" Width="126.333" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="settings_screen_resolution_label" HorizontalAlignment="Left" Height="19" Margin="15,45,0,0" TextWrapping="Wrap" Text="Разрешение экрана" VerticalAlignment="Top" Width="126.333" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="settings_music_label" HorizontalAlignment="Left" Height="19" Margin="15,101.001,0,0" TextWrapping="Wrap" Text="Настройка звука" VerticalAlignment="Top" Width="126.333" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="other_label" HorizontalAlignment="Left" Height="19" Margin="15,155.336,0,0" TextWrapping="Wrap" Text="Настройка мыши" VerticalAlignment="Top" Width="126.333" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="settings_gamma_label" HorizontalAlignment="Left" Height="19" Margin="16.334,206.338,0,0" TextWrapping="Wrap" Text="Гамма" VerticalAlignment="Top" Width="85" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="settings_texture_quality_label" HorizontalAlignment="Left" Height="19" Margin="273.834,-4.425,0,0" TextWrapping="Wrap" Text="Качество текстур" VerticalAlignment="Top" Width="85" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="settings_lightning_quality_label" HorizontalAlignment="Left" Height="19" Margin="272.334,67.214,0,0" TextWrapping="Wrap" Text="Качество освещения" VerticalAlignment="Top" Width="99" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="settings_illimination_quality_label" HorizontalAlignment="Left" Height="19" Margin="272.334,135.837,0,0" TextWrapping="Wrap" Text="Эффекты свечения" VerticalAlignment="Top" Width="99" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="settings_shadow_quality_label" HorizontalAlignment="Left" Height="19" Margin="272.334,206.338,0,0" TextWrapping="Wrap" Text="Качесво теней" VerticalAlignment="Top" Width="99" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="launcher_settings_lable" HorizontalAlignment="Left" Height="19" Margin="523.834,-27.092,-142.501,0" TextWrapping="Wrap" Text="Настройка лаунчера" VerticalAlignment="Top" Width="101.667" Foreground="#FF8CFFFA" FontSize="10"/>
+                <ComboBox x:Name="video_adapter_list" HorizontalAlignment="Left" Margin="15,18.575,0,0" VerticalAlignment="Top" Width="234" Height="6"/>
+                <ComboBox x:Name="resolution_list" HorizontalAlignment="Left" Margin="15,66.214,0,0" VerticalAlignment="Top" Width="126.333" Height="6"/>
+                <CheckBox x:Name="window_mode_check" Content="Игра в окне" HorizontalAlignment="Left" Margin="151.801,68.214,0,0" VerticalAlignment="Top" Foreground="#FF8CFFFA" FontSize="10" Height="18" Width="80.199"/>
+                <CheckBox x:Name="music_check" Content="Музыка" HorizontalAlignment="Left" Margin="15.135,128.047,0,0" VerticalAlignment="Top" Foreground="#FF8CFFFA" FontSize="10" Height="18" Width="80.199"/>
+                <CheckBox x:Name="effects_check" Content="Эффекты" HorizontalAlignment="Left" Margin="185.801,128.047,0,0" VerticalAlignment="Top" Foreground="#FF8CFFFA" FontSize="10" Height="18" Width="63.199"/>
+                <TextBlock x:Name="other_label_Copy" HorizontalAlignment="Left" Height="19" Margin="15,172.336,0,0" TextWrapping="Wrap" Text="Ускорение курсора" VerticalAlignment="Top" Width="126.333" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="other_label_Copy1" HorizontalAlignment="Left" Height="19" Margin="15,187.336,0,0" TextWrapping="Wrap" Text="Детализация текстур" VerticalAlignment="Top" Width="126.333" Foreground="#FF8CFFFA" FontSize="10"/>
+                <CheckBox x:Name="mouse_acceleration_check" Content="Выключено" HorizontalAlignment="Left" Margin="168.801,172.546,0,0" VerticalAlignment="Top" Foreground="#FF8CFFFA" FontSize="10" Height="18" Width="80.199"/>
+                <CheckBox x:Name="texture_detalization_check" Content="Включено" HorizontalAlignment="Left" Margin="168.801,187.885,0,0" VerticalAlignment="Top" Foreground="#FF8CFFFA" FontSize="10" Height="18" Width="80.199"/>
+                <TextBlock x:Name="gamma_label" HorizontalAlignment="Left" Height="19" Margin="185.801,234.684,0,0" TextWrapping="Wrap" Text="1.0" VerticalAlignment="Top" Width="22" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="texture_quality_label" HorizontalAlignment="Left" Height="19" Margin="421.801,19.575,0,0" TextWrapping="Wrap" Text="Низкое" VerticalAlignment="Top" Width="61.199" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="lightning_quality_label" HorizontalAlignment="Left" Height="19" Margin="421.801,90.211,-2,0" TextWrapping="Wrap" Text="Выключено" VerticalAlignment="Top" Width="63.199" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="illimination_quality_label" HorizontalAlignment="Left" Height="19" Margin="421.801,161.546,-2,0" TextWrapping="Wrap" Text="Выключено" VerticalAlignment="Top" Width="63.199" Foreground="#FF8CFFFA" FontSize="10"/>
+                <TextBlock x:Name="shadow_quality_label" HorizontalAlignment="Left" Height="19" Margin="421.801,231.684,-2,0" TextWrapping="Wrap" Text="Выключено" VerticalAlignment="Top" Width="63.199" Foreground="#FF8CFFFA" FontSize="10"/>
+            </Grid>
+            <Slider x:Name="texture_quality_bar" Style="{StaticResource SliderStyle1}" IsSnapToTickEnabled="True" HorizontalAlignment="Left" Margin="280.333,40,0,0" VerticalAlignment="Top" Width="150" TickPlacement="BottomRight" Foreground="#FF8CFFFA" Background="#00000000" BorderBrush="#FFF30000" Height="30.333" RenderTransformOrigin="0.497,-0.016" Maximum="3" SmallChange="1" ValueChanged="Texture_quality_bar_ValueChanged"/>
+            <Slider x:Name="lightning_quality_bar" Style="{StaticResource SliderStyle1}"  IsSnapToTickEnabled="True" HorizontalAlignment="Left" Margin="280.333,110,0,0" VerticalAlignment="Top" Width="150" TickPlacement="BottomRight" Foreground="#FF8CFFFA" Background="#00000000" BorderBrush="#FFF30000" Height="30.333" RenderTransformOrigin="0.497,-0.016" Maximum="3" SmallChange="1" ValueChanged="Lightning_quality_bar_ValueChanged"/>
+            <Slider x:Name="illimination_quality_bar" Style="{StaticResource SliderStyle1}" IsSnapToTickEnabled="True" HorizontalAlignment="Left" Margin="280.333,180.5,0,0" VerticalAlignment="Top" Width="150" TickPlacement="BottomRight" Foreground="#FF8CFFFA" Background="#00000000" BorderBrush="#FFF30000" Height="30.333" RenderTransformOrigin="0.497,-0.016" Maximum="2" SmallChange="1" ValueChanged="Illimination_quality_bar_ValueChanged"/>
+            <Slider x:Name="shadow_quality_bar" Style="{StaticResource SliderStyle1}" IsSnapToTickEnabled="True" HorizontalAlignment="Left" Margin="280.333,251,0,0" VerticalAlignment="Top" Width="150" TickPlacement="BottomRight" Foreground="#FF8CFFFA" Background="#00000000" BorderBrush="#FFF30000" Height="30.333" RenderTransformOrigin="0.497,-0.016" Maximum="3" SmallChange="1" ValueChanged="Shadow_quality_bar_ValueChanged"/>
+            <Slider x:Name="gamma_bar" Style="{StaticResource SliderStyle1}" IsSnapToTickEnabled="True" HorizontalAlignment="Left" Margin="22.833,251,0,0" VerticalAlignment="Top" Width="150" TickPlacement="BottomRight" Foreground="#FF8CFFFA" Background="#00000000" BorderBrush="#FFF30000" Height="30.333" RenderTransformOrigin="0.497,-0.016" Maximum="5" SmallChange="1" ValueChanged="Gamma_bar_ValueChanged"/>
+        </Grid>
+        <Rectangle HorizontalAlignment="Left" Height="89.5" Margin="525.663,28.427,0,0" Stroke="#00000000" VerticalAlignment="Top" Width="170">
+            <Rectangle.Fill>
+                <ImageBrush ImageSource="settings_block_3.png"/>
+            </Rectangle.Fill>
+        </Rectangle>
+        <CheckBox x:Name="close_launcher_after_login" Content="Закрывать после входа?" HorizontalAlignment="Left" Margin="539.999,96.998,0,0" VerticalAlignment="Top" Foreground="#FF8CFFFA" FontSize="10" Height="18" Width="148.667"/>
+        <Rectangle HorizontalAlignment="Left" Height="70" Margin="525.663,122.927,0,0" Stroke="#00000000" VerticalAlignment="Top" Width="170">
+            <Rectangle.Fill>
+                <ImageBrush ImageSource="settings_block_4.png"/>
+            </Rectangle.Fill>
+        </Rectangle>
+        <Button x:Name="btn_save" Style="{StaticResource ScaleButton}" Content="Сохранить" HorizontalAlignment="Left" Height="22" Margin="553,131.501,0,0" VerticalAlignment="Top" Width="118" Foreground="White" FontSize="9" Click="Btn_save_Click">
+            <Button.Background>
+                <ImageBrush ImageSource="btn.png"/>
+            </Button.Background>
+        </Button>
+        <Button x:Name="btn_cancel" Style="{StaticResource ScaleButton}" Content="Оменить" HorizontalAlignment="Left" Height="22" Margin="553,161.837,0,0" VerticalAlignment="Top" Width="118" Foreground="White" FontSize="9" Click="Btn_cancel_Click">
+            <Button.Background>
+                <ImageBrush ImageSource="btn.png"/>
+            </Button.Background>
+        </Button>
+        <Button x:Name="btn_clean_passwords" Style="{StaticResource ScaleButton}" Content="Очистить пароли" HorizontalAlignment="Left" Height="22" Margin="532.333,43.665,0,0" VerticalAlignment="Top" Width="156.333" Foreground="White" FontSize="9" Click="Btn_clean_passwords_Click">
+            <Button.Background>
+                <ImageBrush ImageSource="btn.png"/>
+            </Button.Background>
+        </Button>
+        <Button x:Name="btn_repair_client" Style="{StaticResource ScaleButton}" Content="Починить клиент" HorizontalAlignment="Left" Height="22" Margin="532.333,69.998,0,0" VerticalAlignment="Top" Width="156.333" Foreground="White" FontSize="9" Click="Btn_repair_client_Click">
+            <Button.Background>
+                <ImageBrush ImageSource="btn.png"/>
+            </Button.Background>
+        </Button>
+        <Rectangle HorizontalAlignment="Left" Height="20.427" Margin="0,-0.33,0,0" Stroke="#00000000" VerticalAlignment="Top" Width="718" MouseDown="Rectangle_MouseDown">
+            <Rectangle.Fill>
+                <ImageBrush ImageSource="line top.png"/>
+            </Rectangle.Fill>
+        </Rectangle>
+
+    </Grid>
+</Window>

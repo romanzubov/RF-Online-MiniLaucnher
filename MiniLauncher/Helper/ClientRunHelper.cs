@@ -1,5 +1,6 @@
 ﻿using MiniLauncher.Network.BinaryConverter;
 using MiniLauncher.Network.Packets;
+using MiniLauncher.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -26,6 +27,7 @@ namespace MiniLauncher.Helper
         {
             if (!File.Exists(filepath))
             {
+                SimpleLogger.GetInstance.Warning($"{LocalizationManager.GetInstance.GetString("ExetubleFileNotFound")}");
                 MessageBox.Show(LocalizationManager.GetInstance.GetString("ExetubleFileNotFound"), 
                     LocalizationManager.GetInstance.GetString("Error"),
                  MessageBoxButtons.OK, MessageBoxIcon.Error);

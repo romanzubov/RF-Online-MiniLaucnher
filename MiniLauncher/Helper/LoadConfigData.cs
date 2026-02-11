@@ -26,17 +26,21 @@ namespace MiniLauncher.Helper
             var r3Engine = new IniFile(".\\R3Engine.ini");
             var iniParser = new IniFile(_configPath);
             //Section Server
-            string[] keys = new string[5] { "LogginAddress", "OverrideServerAddress", "ServerAddress", "OverrideServerSelection", "ServerIndexSelect" };
+            string[] keys = new string[6] { "Title", "LogginAddress", "OverrideServerAddress", "ServerAddress", "OverrideServerSelection", "ServerIndexSelect" };
             result = iniParser.KeysExists(keys, "Server");
             // Section NationalSetting
             result = iniParser.KeyExists("OverrideNationalCode", "NationalSetting");
             // Section Client
             keys = new string[3] { "DefaultSetTmpPath", "ClientBinaryPath", "ClientWorkingDirectory" };
             result = iniParser.KeysExists(keys, "ClientSetting");
+            // Section UpdateSetting 
+            keys = new string[7] { "ClientUpdateEnable", "PatchUpdateEnable", "UpdateServerClient", "UpdateServerPatch","UpdateLauncherUrl", "UpdateUIUrl", "CountParallelDownload" };
+            result = iniParser.KeysExists(keys, "UpdateSetting");
 
             if (result)
             {
                 //Section Server
+                data.ServerConfig.Title = iniParser.Read("Title", "Server");
                 data.ServerConfig.LogginAddress = iniParser.Read("LogginAddress", "Server");
                 data.ServerConfig.ServerAddress = iniParser.Read("ServerAddress", "Server");
                 data.ServerConfig.OverrideServerAddress = iniParser.Read("OverrideServerAddress", "Server").ToLower() == "true" ? true : false;
@@ -49,6 +53,14 @@ namespace MiniLauncher.Helper
                 data.ClientConfig.DefaultSetTmpPath = iniParser.Read("DefaultSetTmpPath", "ClientSetting");
                 data.ClientConfig.ClientBinaryPath = iniParser.Read("ClientBinaryPath", "ClientSetting");
                 data.ClientConfig.ClientWorkingDirectory = iniParser.Read("ClientWorkingDirectory", "ClientSetting");
+                // Section Update
+                data.UpdateConfig.ClientUpdateEnable = iniParser.Read("ClientUpdateEnable", "UpdateSetting").ToLower() == "true" ? true : false;
+                data.UpdateConfig.PatchUpdateEnable = iniParser.Read("PatchUpdateEnable", "UpdateSetting").ToLower() == "true" ? true : false;
+                data.UpdateConfig.UpdateServerClient = iniParser.Read("UpdateServerClient", "UpdateSetting");
+                data.UpdateConfig.UpdateServerPatch = iniParser.Read("UpdateServerPatch", "UpdateSetting");
+                data.UpdateConfig.UpdateLauncherUrl = iniParser.Read("UpdateLauncherUrl", "UpdateSetting");
+                data.UpdateConfig.UpdateUIUrl = iniParser.Read("UpdateUIUrl", "UpdateSetting");
+                data.UpdateConfig.CountParallelDownload = int.Parse(iniParser.Read("CountParallelDownload", "UpdateSetting"));
             }
 
             return result;

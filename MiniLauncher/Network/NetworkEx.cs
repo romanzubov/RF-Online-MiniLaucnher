@@ -1,13 +1,11 @@
 ﻿using MiniLauncher.Network.BinaryConverter;
 using MiniLauncher.Network.Packets;
+using MiniLauncher.Utils;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Windows.Forms;
 
 namespace MiniLauncher.Network
 {
@@ -70,6 +68,7 @@ namespace MiniLauncher.Network
             }
             catch (Exception e)
             {
+                SimpleLogger.GetInstance.Error(e.ToString());
                 OnClientError();
             }
         }
@@ -92,6 +91,7 @@ namespace MiniLauncher.Network
             }
             catch (Exception e)
             {
+                SimpleLogger.GetInstance.Error(e.ToString());
                 OnClientError();
             }
         }
@@ -107,6 +107,7 @@ namespace MiniLauncher.Network
             }
             catch (Exception e)
             {
+                SimpleLogger.GetInstance.Error(e.ToString());
                 OnClientError();
             }
         }
@@ -144,8 +145,9 @@ namespace MiniLauncher.Network
                     _receiveDone.Set();
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                SimpleLogger.GetInstance.Error(e.ToString());
                 OnClientError();
             }
         }
@@ -166,6 +168,7 @@ namespace MiniLauncher.Network
             }
             catch (Exception e)
             {
+                SimpleLogger.GetInstance.Error(e.ToString());
                 OnClientError();
             }
         }
