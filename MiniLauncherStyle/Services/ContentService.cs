@@ -133,36 +133,6 @@ namespace MiniLauncherStyle.Services
         }
 
         /// <summary>
-        /// Асинхронно загружает статистику через BackgroundWorker.
-        /// </summary>
-        /// <param name="onComplete">Callback при завершении</param>
-        public void LoadStatisticsAsync(Action<AsyncResult<ChipWarStatistics>> onComplete)
-        {
-            var worker = new BackgroundWorker();
-            worker.DoWork += (sender, e) =>
-            {
-                e.Result = LoadStatisticsInternal();
-            };
-            worker.RunWorkerCompleted += (sender, e) =>
-            {
-                if (e.Error != null)
-                {
-                    onComplete(new AsyncResult<ChipWarStatistics> 
-                    { 
-                        Success = false, 
-                        ErrorMessage = e.Error.Message 
-                    });
-                }
-                else
-                {
-                    var result = (AsyncResult<ChipWarStatistics>)e.Result;
-                    onComplete(result);
-                }
-            };
-            worker.RunWorkerAsync();
-        }
-
-        /// <summary>
         /// Внутренний метод загрузки новостей (синхронный).
         /// </summary>
         private AsyncResult<List<NewsItem>> LoadNewsInternal()
@@ -189,36 +159,6 @@ namespace MiniLauncherStyle.Services
             catch (Exception ex)
             {
                 return new AsyncResult<List<NewsItem>> { Success = false, ErrorMessage = ex.Message };
-            }
-        }
-
-        /// <summary>
-        /// Внутренний метод загрузки статистики (синхронный).
-        /// </summary>
-        private AsyncResult<ChipWarStatistics> LoadStatisticsInternal()
-        {
-            try
-            {
-                string statUrl = LauncherConfig.GetInstance.SocialConfig.stat_link;
-                string data = Utils.DownloadDataFromFile(statUrl);
-
-                if (string.IsNullOrEmpty(data))
-                {
-                    return new AsyncResult<ChipWarStatistics> { Success = false, ErrorMessage = "Empty response" };
-                }
-
-                var statistics = JsonConvert.DeserializeObject<ChipWarStatistics>(data);
-                
-                if (statistics == null)
-                {
-                    return new AsyncResult<ChipWarStatistics> { Success = false, ErrorMessage = "Failed to parse statistics" };
-                }
-
-                return new AsyncResult<ChipWarStatistics> { Success = true, Data = statistics };
-            }
-            catch (Exception ex)
-            {
-                return new AsyncResult<ChipWarStatistics> { Success = false, ErrorMessage = ex.Message };
             }
         }
 

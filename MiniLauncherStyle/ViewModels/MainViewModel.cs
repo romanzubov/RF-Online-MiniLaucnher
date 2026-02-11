@@ -32,7 +32,6 @@ namespace MiniLauncherStyle.ViewModels
         private bool _isLoginEnabled;
         private string _windowTitle;
         private List<NewsItem> _newsList;
-        private ChipWarStatistics _statistics;
         
         // Update progress
         private int _checkProgressMax;
@@ -58,29 +57,10 @@ namespace MiniLauncherStyle.ViewModels
         private bool _news3Visible = true;
         private bool _newsSectionVisible = true;
         
-        // Statistics
-        private string _winRaceText;
-        private string _orePercentText;
-        private string _accPercentText;
-        private string _bccPercentText;
-        private string _cccPercentText;
-        
-        // Chip War Timers
-        private string _chipWarTime1;
-        private string _chipWarTime2;
-        private string _chipWarTime3;
-        
         // Status icons
         private bool _statusOnVisible;
         private bool _statusOffVisible = true;
         private string _statusColor = "Orange";
-        
-        // Tab switching
-        private bool _isLoginBlockEnabled = true;
-        private bool _isStatBlockEnabled = false;
-        private bool _isLoginMenuUnderlined = true;
-        private bool _isStatMenuUnderlined;
-        private bool _isStatMenuEnabled = true;
 
         #endregion
 
@@ -138,12 +118,6 @@ namespace MiniLauncherStyle.ViewModels
         {
             get { return _newsList; }
             set { SetProperty(ref _newsList, value, "NewsList"); }
-        }
-
-        public ChipWarStatistics Statistics
-        {
-            get { return _statistics; }
-            set { SetProperty(ref _statistics, value, "Statistics"); }
         }
 
         // Update progress properties
@@ -268,56 +242,6 @@ namespace MiniLauncherStyle.ViewModels
             set { SetProperty(ref _newsSectionVisible, value, "NewsSectionVisible"); }
         }
 
-        // Statistics properties
-        public string WinRaceText
-        {
-            get { return _winRaceText; }
-            set { SetProperty(ref _winRaceText, value, "WinRaceText"); }
-        }
-
-        public string OrePercentText
-        {
-            get { return _orePercentText; }
-            set { SetProperty(ref _orePercentText, value, "OrePercentText"); }
-        }
-
-        public string AccPercentText
-        {
-            get { return _accPercentText; }
-            set { SetProperty(ref _accPercentText, value, "AccPercentText"); }
-        }
-
-        public string BccPercentText
-        {
-            get { return _bccPercentText; }
-            set { SetProperty(ref _bccPercentText, value, "BccPercentText"); }
-        }
-
-        public string CccPercentText
-        {
-            get { return _cccPercentText; }
-            set { SetProperty(ref _cccPercentText, value, "CccPercentText"); }
-        }
-
-        // Chip War Timer properties
-        public string ChipWarTime1
-        {
-            get { return _chipWarTime1; }
-            set { SetProperty(ref _chipWarTime1, value, "ChipWarTime1"); }
-        }
-
-        public string ChipWarTime2
-        {
-            get { return _chipWarTime2; }
-            set { SetProperty(ref _chipWarTime2, value, "ChipWarTime2"); }
-        }
-
-        public string ChipWarTime3
-        {
-            get { return _chipWarTime3; }
-            set { SetProperty(ref _chipWarTime3, value, "ChipWarTime3"); }
-        }
-
         // Status icon properties
         public bool StatusOnVisible
         {
@@ -335,37 +259,6 @@ namespace MiniLauncherStyle.ViewModels
         {
             get { return _statusColor; }
             set { SetProperty(ref _statusColor, value, "StatusColor"); }
-        }
-
-        // Tab switching properties
-        public bool IsLoginBlockEnabled
-        {
-            get { return _isLoginBlockEnabled; }
-            set { SetProperty(ref _isLoginBlockEnabled, value, "IsLoginBlockEnabled"); }
-        }
-
-        public bool IsStatBlockEnabled
-        {
-            get { return _isStatBlockEnabled; }
-            set { SetProperty(ref _isStatBlockEnabled, value, "IsStatBlockEnabled"); }
-        }
-
-        public bool IsLoginMenuUnderlined
-        {
-            get { return _isLoginMenuUnderlined; }
-            set { SetProperty(ref _isLoginMenuUnderlined, value, "IsLoginMenuUnderlined"); }
-        }
-
-        public bool IsStatMenuUnderlined
-        {
-            get { return _isStatMenuUnderlined; }
-            set { SetProperty(ref _isStatMenuUnderlined, value, "IsStatMenuUnderlined"); }
-        }
-
-        public bool IsStatMenuEnabled
-        {
-            get { return _isStatMenuEnabled; }
-            set { SetProperty(ref _isStatMenuEnabled, value, "IsStatMenuEnabled"); }
         }
 
         #endregion
@@ -429,20 +322,6 @@ namespace MiniLauncherStyle.ViewModels
                 if (result.Success)
                 {
                     NewsList = result.Data;
-                }
-            });
-        }
-
-        /// <summary>
-        /// Загружает статистику асинхронно.
-        /// </summary>
-        public void LoadStatisticsAsync()
-        {
-            _contentService.LoadStatisticsAsync(result =>
-            {
-                if (result.Success)
-                {
-                    Statistics = result.Data;
                 }
             });
         }

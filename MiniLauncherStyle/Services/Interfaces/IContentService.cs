@@ -25,11 +25,5 @@ namespace MiniLauncherStyle.Services.Interfaces
         /// </summary>
         /// <param name="onComplete">Callback при завершении</param>
         void LoadNewsAsync(Action<AsyncResult<List<NewsItem>>> onComplete);
-
-        /// <summary>
-        /// Асинхронно загружает статистику Chip War.
-        /// </summary>
-        /// <param name="onComplete">Callback при завершении</param>
-        void LoadStatisticsAsync(Action<AsyncResult<ChipWarStatistics>> onComplete);
     }
 }

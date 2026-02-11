@@ -240,7 +240,7 @@
 
             <!-- ========== СЕКЦИЯ НОВОСТЕЙ ========== -->
             <Grid x:Name="News_Section" Margin="10,50,411,23">
-                
+
                 <!-- Новость 1 -->
                 <Grid x:Name="news1"
                       Style="{StaticResource NewsBlockStyle}"
@@ -282,32 +282,6 @@
                     <Control x:Name="news_loader_3" Style="{StaticResource NewsLoaderStyle}" Visibility="{Binding News3LoaderVisible, Converter={StaticResource BoolToVisibility}}"/>
                 </Grid>
             </Grid>
-
-            <!-- ========== МЕНЮ ПЕРЕКЛЮЧЕНИЯ (Login/Stat) ========== -->
-            <TextBlock x:Name="menu_login_btn"
-                       Height="27" Width="44"
-                       HorizontalAlignment="Left"
-                       VerticalAlignment="Top"
-                       Margin="420,-42,0,0"
-                       TextWrapping="Wrap"
-                       FontSize="18"
-                       Foreground="{StaticResource TextLightBlue}"
-                       Text="{local:Loc Key=login_box}"
-                       TextDecorations="{Binding IsLoginMenuUnderlined, Converter={StaticResource BoolToUnderline}}"
-                       MouseDown="Menu_login_btn_MouseDown"/>
-
-            <TextBlock x:Name="menu_stat_btn"
-                       Height="27" Width="95.543"
-                       HorizontalAlignment="Left"
-                       VerticalAlignment="Top"
-                       Margin="470,-42,0,0"
-                       TextWrapping="Wrap"
-                       FontSize="18"
-                       Foreground="{StaticResource TextLightBlue}"
-                       Text="{local:Loc Key=stat}"
-                       IsEnabled="{Binding IsStatMenuEnabled}"
-                       TextDecorations="{Binding IsStatMenuUnderlined, Converter={StaticResource BoolToUnderline}}"
-                       MouseDown="Menu_stat_btn_MouseDown"/>
 
             <!-- ========== ПАНЕЛЬ АВТОРИЗАЦИИ ========== -->
             <Grid x:Name="LoginBlock"
@@ -390,136 +364,6 @@
                            Foreground="{StaticResource TextWhite}"
                            Text="{local:Loc Key=register_btn}"
                            MouseDown="TextBlock_MouseDown"/>
-            </Grid>
-
-            <!-- ========== ПАНЕЛЬ СТАТИСТИКИ ========== -->
-            <Grid x:Name="StatBlock"
-                  Style="{StaticResource SlidePanelStyle}"
-                  Width="211"
-                  HorizontalAlignment="Center"
-                  Margin="475.5,40,13.5,38"
-                  IsEnabled="{Binding IsStatBlockEnabled}">
-
-                <!-- Фон панели -->
-                <Rectangle Height="189" Width="211"
-                           VerticalAlignment="Top"
-                           Margin="0,0,0,-15"
-                           Stroke="{StaticResource TransparentStroke}">
-                    <Rectangle.Fill>
-                        <ImageBrush ImageSource="images/loginblock.png"/>
-                    </Rectangle.Fill>
-                </Rectangle>
-
-                <!-- Заголовок: Статистика чип-войны -->
-                <TextBlock Height="27" Width="125.965"
-                           HorizontalAlignment="Left"
-                           VerticalAlignment="Top"
-                           Margin="45,11,0,0"
-                           TextWrapping="Wrap"
-                           FontSize="18"
-                           Foreground="{StaticResource TextLightBlue}"
-                           Text="{local:Loc Key=chip_war_statistics}"/>
-
-                <!-- Победившая раса -->
-                <TextBlock x:Name="label_win_race"
-                           Height="27" Width="191"
-                           HorizontalAlignment="Left"
-                           VerticalAlignment="Top"
-                           Margin="10,38,0,0"
-                           TextWrapping="Wrap"
-                           FontSize="14"
-                           Foreground="{StaticResource TextWhite}"
-                           Text="{Binding WinRaceText}"/>
-
-                <!-- Процент руды -->
-                <TextBlock x:Name="label_ore_percent"
-                           Height="27" Width="191"
-                           HorizontalAlignment="Left"
-                           VerticalAlignment="Top"
-                           Margin="10,61,0,0"
-                           TextWrapping="Wrap"
-                           FontSize="14"
-                           Foreground="{StaticResource TextWhite}"
-                           Text="{Binding OrePercentText}"/>
-
-                <!-- Заголовок: Время до чип-войны -->
-                <TextBlock Height="27" Width="89.965"
-                           HorizontalAlignment="Left"
-                           VerticalAlignment="Top"
-                           Margin="59,87,0,0"
-                           TextWrapping="Wrap"
-                           FontSize="14"
-                           Foreground="{StaticResource TextLightBlue}"
-                           Text="{local:Loc Key=time_to_chip_war}"/>
-
-                <!-- Времена чип-войн -->
-                <TextBlock x:Name="chip_war_time_1"
-                           Height="21" Width="63.965"
-                           HorizontalAlignment="Left"
-                           VerticalAlignment="Top"
-                           Margin="15,115,0,0"
-                           TextWrapping="Wrap"
-                           FontSize="14"
-                           Foreground="{StaticResource TextWhite}"
-                           Text="{Binding ChipWarTime1, FallbackValue='6:00'}"/>
-
-                <TextBlock x:Name="chip_war_time_2"
-                           Height="21" Width="68.965"
-                           HorizontalAlignment="Left"
-                           VerticalAlignment="Top"
-                           Margin="78.965,115,0,0"
-                           TextWrapping="Wrap"
-                           FontSize="14"
-                           Foreground="{StaticResource TextWhite}"
-                           Text="{Binding ChipWarTime2, FallbackValue='14:00'}"/>
-
-                <TextBlock x:Name="chip_war_time_3"
-                           Height="21" Width="64.965"
-                           HorizontalAlignment="Left"
-                           VerticalAlignment="Top"
-                           Margin="141.93,115,0,0"
-                           TextWrapping="Wrap"
-                           FontSize="14"
-                           Foreground="{StaticResource TextWhite}"
-                           Text="{Binding ChipWarTime3, FallbackValue='22:00'}"/>
-
-                <!-- Заголовок: Текущие проценты чипов -->
-                <TextBlock Height="27" Width="173"
-                           HorizontalAlignment="Left"
-                           VerticalAlignment="Top"
-                           Margin="21,139,0,0"
-                           TextWrapping="Wrap"
-                           FontSize="14"
-                           Foreground="{StaticResource TextLightBlue}"
-                           Text="{local:Loc Key=current_chip_percents}"/>
-
-                <!-- Проценты чипов по расам -->
-                <TextBlock x:Name="acc_percent"
-                           Height="21" Width="67.965"
-                           HorizontalAlignment="Left"
-                           VerticalAlignment="Top"
-                           Margin="12,164,0,0"
-                           TextWrapping="Wrap"
-                           Foreground="{StaticResource TextWhite}"
-                           Text="{Binding AccPercentText, FallbackValue='ACC-100%'}"/>
-
-                <TextBlock x:Name="bcc_percent"
-                           Height="21" Width="67.965"
-                           HorizontalAlignment="Left"
-                           VerticalAlignment="Top"
-                           Margin="76.965,164,0,0"
-                           TextWrapping="Wrap"
-                           Foreground="{StaticResource TextWhite}"
-                           Text="{Binding BccPercentText, FallbackValue='BCC-100%'}"/>
-
-                <TextBlock x:Name="ccc_percent"
-                           Height="21" Width="67.965"
-                           HorizontalAlignment="Left"
-                           VerticalAlignment="Top"
-                           Margin="141.93,164,0,0"
-                           TextWrapping="Wrap"
-                           Foreground="{StaticResource TextWhite}"
-                           Text="{Binding CccPercentText, FallbackValue='CCC-100%'}"/>
             </Grid>
 
             <!-- ========== СОЦИАЛЬНЫЕ КНОПКИ ========== -->

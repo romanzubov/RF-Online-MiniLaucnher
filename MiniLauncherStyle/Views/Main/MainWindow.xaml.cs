@@ -312,67 +312,6 @@ namespace MiniLauncherStyle
             InitUserCredential();
             InitializeUpdater();
             LoadNews();
-            
-            TimeZoneInfo moscowTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Russian Standard Time");
-            DateTime today = DateTime.UtcNow + moscowTimeZone.BaseUtcOffset;
-            int addToDay = 0;
-            int addToMounth = 0;
-            int addToYear = 0;
-
-
-
-            if(today.Day == 30)
-            {
-                addToMounth = 1;
-                addToDay = 0;
-            }
-            else
-            {
-                addToDay = 1;
-            }
-
-            try
-            {
-                if (today.Month == 12)
-                {
-                    addToMounth = 0;
-                    addToYear = 1;
-                }
-                if (today.Hour >= 6)
-                {
-                    voteTime = new DateTime(today.Year + addToYear, today.Month + addToMounth, today.Day + addToDay, 6, 00, 00);
-                }
-                else
-                {
-                    voteTime = new DateTime(today.Year + addToYear, today.Month, today.Day, 6, 00, 00);
-                }
-                if (today.Hour >= 14)
-                {
-                    voteTime2 = new DateTime(today.Year + addToYear, today.Month, today.Day + addToDay, 14, 00, 00);
-                }
-                else
-                {
-                    voteTime2 = new DateTime(today.Year + addToYear, today.Month, today.Day, 14, 00, 00);
-                }
-                if (today.Hour >= 22)
-                {
-                    voteTime3 = new DateTime(today.Year, today.Month, today.Day + addToDay, 2, 00, 00);
-                }
-                else
-                {
-                    voteTime3 = new DateTime(today.Year, today.Month, today.Day, 22, 00, 00);
-                }
-            }
-            catch (Exception)
-            {
-                // Игнорируем ошибки при расчете времени
-            }
-
-            System.Windows.Forms.Timer timer1 = new System.Windows.Forms.Timer();
-            timer1.Tick += timer1_Tick;
-            timer1.Interval = 1000;
-            timer1.Enabled = true;
-            timer1.Start();
         }
 
         private void InitLocalizationChanger()
@@ -411,58 +350,6 @@ namespace MiniLauncherStyle
             }
         }
 
-        DateTime voteTime;
-        DateTime voteTime2;
-        DateTime voteTime3;
-        private void timer1_Tick(object sender, EventArgs e)
-        {
-            TimeZoneInfo moscowTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Russian Standard Time");
-            DateTime today = DateTime.UtcNow + moscowTimeZone.BaseUtcOffset;
-
-            TimeSpan TimeRemaining = voteTime - today;
-            TimeSpan TimeRemaining1 = voteTime2 - today;
-            TimeSpan TimeRemaining2  = voteTime3 - today;
-            ViewModel.ChipWarTime1 = string.Format("{0:D2}:{1:D2}:{2:D2} |", TimeRemaining.Hours, TimeRemaining.Minutes, TimeRemaining.Seconds);
-            ViewModel.ChipWarTime2 = string.Format("{0:D2}:{1:D2}:{2:D2} |", TimeRemaining1.Hours, TimeRemaining1.Minutes, TimeRemaining1.Seconds);
-            ViewModel.ChipWarTime3 = string.Format("{0:D2}:{1:D2}:{2:D2}", TimeRemaining2.Hours, TimeRemaining2.Minutes, TimeRemaining2.Seconds);
-        }
-
-        private void LoadStat()
-        {
-            var result = ContentService.LoadStatistics();
-                
-            if (result.Success)
-            {
-                var statData = result.Data;
-                // Сохраняем в ViewModel
-                ViewModel.Statistics = statData;
-                
-                Dispatcher.Invoke((MethodInvoker)delegate
-                {
-                    ViewModel.WinRaceText = String.Format(Lm.GetString("win_race"), statData.DestroyedRace);
-                    ViewModel.OrePercentText = String.Format(Lm.GetString("ore_percent"), statData.OrePercent);
-                    ViewModel.AccPercentText = String.Format(Lm.GetString("acc_chip_percent"), statData.AccPercent);
-                    ViewModel.BccPercentText = String.Format(Lm.GetString("bcc_chip_percent"), statData.BccPercent);
-                    ViewModel.CccPercentText = String.Format(Lm.GetString("ccc_chip_percent"), statData.CccPercent);
-                });
-            }
-            else
-            {
-                DisableStatBlock();
-            }
-        }
-
-        private void DisableStatBlock()
-        {
-            Dispatcher.Invoke((MethodInvoker)delegate
-            {
-                ViewModel.IsStatMenuEnabled = false;
-                ViewModel.IsStatMenuUnderlined = false;
-                ViewModel.IsLoginMenuUnderlined = true;
-                ViewModel.IsStatBlockEnabled = false;
-                ViewModel.IsLoginBlockEnabled = true;
-            });
-        }
 
         private void LoadNews()
         {
@@ -477,7 +364,6 @@ namespace MiniLauncherStyle
                 if (e.Error != null)
                 {
                     HideNewsSection();
-                    DisableStatBlock();
                     return;
                 }
                 
@@ -485,18 +371,12 @@ namespace MiniLauncherStyle
                 if (!result.Success)
                 {
                     HideNewsSection();
-                    DisableStatBlock();
                     return;
                 }
                 
                 newsList = result.Data;
                 ViewModel.NewsList = newsList;
                 DisplayNews(newsList);
-                
-                // Загружаем статистику в отдельном BackgroundWorker
-                var statWorker = new System.ComponentModel.BackgroundWorker();
-                statWorker.DoWork += (s, args) => LoadStat();
-                statWorker.RunWorkerAsync();
             };
             worker.RunWorkerAsync();
         }
@@ -648,27 +528,6 @@ namespace MiniLauncherStyle
                 {
                     _dialogService.OpenUrl(newsList[2].Link);
                 }
-            }
-        }
-
-        private void Menu_login_btn_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                ViewModel.IsLoginBlockEnabled = true;
-                ViewModel.IsStatBlockEnabled = false;
-                ViewModel.IsLoginMenuUnderlined = true;
-                ViewModel.IsStatMenuUnderlined = false;
-            }
-        }
-        private void Menu_stat_btn_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                ViewModel.IsLoginBlockEnabled = false;
-                ViewModel.IsStatBlockEnabled = true;
-                ViewModel.IsLoginMenuUnderlined = false;
-                ViewModel.IsStatMenuUnderlined = true;
             }
         }
 
