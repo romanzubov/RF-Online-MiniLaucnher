@@ -5,13 +5,13 @@ using MiniLauncher.Network.Packets;
 using MiniLauncher.Updater;
 using MiniLauncher.Utils;
 using MiniLauncherStyle.Data;
+using MiniLauncherStyle.Helper;
+using MiniLauncherStyle.Services;
 using MiniLauncherStyle.Views.Settings;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Windows;
@@ -24,21 +24,21 @@ using System.Windows.Media.Imaging;
 namespace MiniLauncherStyle
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Главное окно лаунчера.
     /// </summary>
     public partial class MainWindow : Window
     {
         private UserCredential userCredential;
         private LocalizationManager Lm;
         private NetworkClient networkClient;
-        private bool connection_status { get; set; }
+        private bool connectionStatus;
 
         private UpdateManager UpdateManager { get; set; }
-        List<News> listNews { get; set; }
+        private List<NewsItem> newsList;
 
         public MainWindow()
         {
-            connection_status = false;
+            connectionStatus = false;
             Lm = LocalizationManager.GetInstance;
             InitializeComponent();
             InitializeNetwork();
@@ -206,7 +206,7 @@ namespace MiniLauncherStyle
                 proggres_apply.Maximum = 100;
                 proggres_apply.Value = 100;
                 apply_label.Text = Lm.GetString("update_apply_label_done");
-                if (connection_status)
+                if (connectionStatus)
                 {
                     EnableLoginBtn(true);
                 }
@@ -215,7 +215,7 @@ namespace MiniLauncherStyle
 
         private void UpdateCheckFiles_UpdateCheckProggress(object sender, UpdateCheckEventArgs e)
         {
-            if (connection_status)
+            if (connectionStatus)
             {
                 EnableLoginBtn(false);
             }
@@ -274,7 +274,7 @@ namespace MiniLauncherStyle
         }
         private void ChangeStatus(bool ok)
         {
-            connection_status = ok;
+            connectionStatus = ok;
             Dispatcher.Invoke((MethodInvoker)delegate {
                 status_label.Text = ok ? Lm.GetString("StatusConnected") : Lm.GetString("StatusDisconected");
                 if (ok)
@@ -298,8 +298,7 @@ namespace MiniLauncherStyle
                 play_btn.IsEnabled = state;
             });
         }
-        object lock_load = new object();
-        bool load_stat = true;
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             InitLocalizationChanger();
@@ -357,7 +356,10 @@ namespace MiniLauncherStyle
                     voteTime3 = new DateTime(today.Year, today.Month, today.Day, 22, 00, 00);
                 }
             }
-            catch (Exception e2) { }
+            catch (Exception)
+            {
+                // Игнорируем ошибки при расчете времени
+            }
 
             System.Windows.Forms.Timer timer1 = new System.Windows.Forms.Timer();
             timer1.Tick += timer1_Tick;
@@ -420,127 +422,95 @@ namespace MiniLauncherStyle
 
         private void LoadStat()
         {
-
-            string data = Utils.DownloadDataFromFile(LauncherConfig.GetInstance.SocialConfig.stat_link);
+            var result = ContentService.LoadStatistics();
                 
-            if (!string.IsNullOrEmpty(data))
+            if (result.Success)
             {
-                try
+                var statData = result.Data;
+                Dispatcher.Invoke((MethodInvoker)delegate
                 {
-                    Stat statData = JsonConvert.DeserializeObject<Stat>(data);
-                    Dispatcher.Invoke((MethodInvoker)delegate
-                    {
-                        label_win_race.Text = String.Format(Lm.GetString("win_race"), statData.destroed_race);
-                        label_ore_percent.Text = String.Format(Lm.GetString("ore_percent"), statData.ore_percent);
-                        acc_percent.Text = String.Format(Lm.GetString("acc_chip_percent"), statData.acc);
-                        bcc_percent.Text = String.Format(Lm.GetString("bcc_chip_percent"), statData.bcc);
-                        ccc_percent.Text = String.Format(Lm.GetString("ccc_chip_percent"), statData.ccc);
-                    });
-                }
-                catch (Exception)
-                {
-                    Dispatcher.Invoke((MethodInvoker)delegate
-                    {
-                        menu_stat_btn.TextDecorations = TextDecorations.Strikethrough;
-                        menu_login_btn.TextDecorations = TextDecorations.Underline;
-                        menu_stat_btn.IsEnabled = false;
-                        StatBlock.IsEnabled = false;
-                        LoginBlock.IsEnabled = true;
-                    });
-                }
+                    label_win_race.Text = String.Format(Lm.GetString("win_race"), statData.DestroyedRace);
+                    label_ore_percent.Text = String.Format(Lm.GetString("ore_percent"), statData.OrePercent);
+                    acc_percent.Text = String.Format(Lm.GetString("acc_chip_percent"), statData.AccPercent);
+                    bcc_percent.Text = String.Format(Lm.GetString("bcc_chip_percent"), statData.BccPercent);
+                    ccc_percent.Text = String.Format(Lm.GetString("ccc_chip_percent"), statData.CccPercent);
+                });
             }
             else
             {
-                Dispatcher.Invoke((MethodInvoker)delegate
-                {
-                    menu_stat_btn.TextDecorations = TextDecorations.Strikethrough;
-                    menu_login_btn.TextDecorations = TextDecorations.Underline;
-                    menu_stat_btn.IsEnabled = false;
-                    StatBlock.IsEnabled = false;
-                    LoginBlock.IsEnabled = true;
-                });
+                DisableStatBlock();
             }
         }
+
+        private void DisableStatBlock()
+        {
+            Dispatcher.Invoke((MethodInvoker)delegate
+            {
+                menu_stat_btn.TextDecorations = TextDecorations.Strikethrough;
+                menu_login_btn.TextDecorations = TextDecorations.Underline;
+                menu_stat_btn.IsEnabled = false;
+                StatBlock.IsEnabled = false;
+                LoginBlock.IsEnabled = true;
+            });
+        }
+
         private void LoadNews()
         {
-            (new Thread(() => {
-                string data = Utils.DownloadDataFromFile(LauncherConfig.GetInstance.SocialConfig.news_link);
-                if (string.IsNullOrEmpty(data))
+            new Thread(() => {
+                var result = ContentService.LoadNews();
+                
+                if (!result.Success)
                 {
-                    Dispatcher.Invoke((MethodInvoker)delegate {
-                        news_label.Visibility = Visibility.Hidden;
-                        news1.Visibility = Visibility.Hidden;
-                        news2.Visibility = Visibility.Hidden;
-                        news3.Visibility = Visibility.Hidden;
-
-                        menu_stat_btn.TextDecorations = TextDecorations.Strikethrough;
-                        menu_login_btn.TextDecorations = TextDecorations.Underline;
-                        menu_stat_btn.IsEnabled = false;
-                        StatBlock.IsEnabled = false;
-                        LoginBlock.IsEnabled = true;
-                    });
-
+                    HideNewsSection();
+                    DisableStatBlock();
                     return;
                 }
                 
-                try { 
-                    listNews = JsonConvert.DeserializeObject<List<News>>(data);
-                    if(listNews == null)
-                    {
-                        Dispatcher.Invoke((MethodInvoker)delegate {
-                            news_label.Visibility = Visibility.Hidden;
-                            news1.Visibility = Visibility.Hidden;
-                            news2.Visibility = Visibility.Hidden;
-                            news3.Visibility = Visibility.Hidden;
-                        });
-                        return;
-                    }
-                    Dispatcher.Invoke((MethodInvoker)delegate {
-                        if(listNews.Count == 1)
-                        {
-                            news_loader_1.Visibility = Visibility.Hidden;
-                            news_head_1.Text = listNews[0].text;
-                            news_author_1.Text = listNews[0].author + " | " + listNews[0].datetime;
-                            news2.Visibility = Visibility.Hidden;
-                            news3.Visibility = Visibility.Hidden;
-                        }
-                        if (listNews.Count == 2)
-                        {
-                            news_loader_1.Visibility = Visibility.Hidden;
-                            news_loader_2.Visibility = Visibility.Hidden;
-                            news_head_1.Text = listNews[0].text;
-                            news_author_1.Text = listNews[0].author + " | " + listNews[0].datetime;
-                            news_head_2.Text = listNews[1].text;
-                            news_author_2.Text = listNews[1].author + " | " + listNews[1].datetime;
-                            news3.Visibility = Visibility.Hidden;
-                        }
-                        if (listNews.Count >= 3)
-                        {
-                            news_loader_1.Visibility = Visibility.Hidden;
-                            news_loader_2.Visibility = Visibility.Hidden;
-                            news_loader_3.Visibility = Visibility.Hidden;
-                            news_head_1.Text = listNews[0].text;
-                            news_author_1.Text = listNews[0].author + " | " + listNews[0].datetime;
-                            news_head_2.Text = listNews[1].text;
-                            news_author_2.Text = listNews[1].author + " | " + listNews[1].datetime;
-                            news_head_3.Text = listNews[2].text;
-                            news_author_3.Text = listNews[2].author + " | " + listNews[2].datetime;
-                        }
-                    });
-                    LoadStat();
-                }
-                catch (Exception)
+                newsList = result.Data;
+                DisplayNews(newsList);
+                LoadStat();
+            }).Start();
+        }
+
+        private void HideNewsSection()
+        {
+            Dispatcher.Invoke((MethodInvoker)delegate 
+            {
+                news_label.Visibility = Visibility.Hidden;
+                news1.Visibility = Visibility.Hidden;
+                news2.Visibility = Visibility.Hidden;
+                news3.Visibility = Visibility.Hidden;
+            });
+        }
+
+        private void DisplayNews(List<NewsItem> news)
+        {
+            Dispatcher.Invoke((MethodInvoker)delegate 
+            {
+                if (news.Count >= 1)
                 {
-                    Dispatcher.Invoke((MethodInvoker)delegate {
-                        news_label.Visibility = Visibility.Hidden;
-                        news1.Visibility = Visibility.Hidden;
-                        news2.Visibility = Visibility.Hidden;
-                        news3.Visibility = Visibility.Hidden;
-                    });
-                    return;
+                    news_loader_1.Visibility = Visibility.Hidden;
+                    news_head_1.Text = news[0].Text;
+                    news_author_1.Text = news[0].Author + " | " + news[0].DateTime;
+                }
+                if (news.Count >= 2)
+                {
+                    news_loader_2.Visibility = Visibility.Hidden;
+                    news_head_2.Text = news[1].Text;
+                    news_author_2.Text = news[1].Author + " | " + news[1].DateTime;
+                }
+                if (news.Count >= 3)
+                {
+                    news_loader_3.Visibility = Visibility.Hidden;
+                    news_head_3.Text = news[2].Text;
+                    news_author_3.Text = news[2].Author + " | " + news[2].DateTime;
                 }
                 
-            })).Start();
+                // Скрыть неиспользуемые блоки
+                if (news.Count < 3) news3.Visibility = Visibility.Hidden;
+                if (news.Count < 2) news2.Visibility = Visibility.Hidden;
+                if (news.Count < 1) news1.Visibility = Visibility.Hidden;
+            });
         }
 
         private void Drag_Layout_MouseDown(object sender, MouseButtonEventArgs e)
@@ -557,7 +527,7 @@ namespace MiniLauncherStyle
 
         private void Settings_btn_Click(object sender, RoutedEventArgs e)
         {
-            SettingsWindow settings = new SettingsWindow(Top,Left);
+            SettingsWindow settings = new SettingsWindow(Top, Left);
             settings.Closing += Settings_Closing;
             settings.Show();
         }
@@ -566,7 +536,7 @@ namespace MiniLauncherStyle
         {
             var settings = (SettingsWindow)sender;
             InitUserCredential();
-            if (settings.clientUpdateRequeried)
+            if (settings.ClientUpdateRequired)
             {
                 InitializeUpdater();
             }
@@ -631,19 +601,20 @@ namespace MiniLauncherStyle
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                if (listNews != null && listNews.Count >= 3)
+                if (newsList != null && newsList.Count >= 1)
                 {
-                    Process.Start(listNews[0].link);
+                    Process.Start(newsList[0].Link);
                 }
             }
         }
 
         private void News2_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if(e.LeftButton == MouseButtonState.Pressed) { 
-                if (listNews != null && listNews.Count >= 3)
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                if (newsList != null && newsList.Count >= 2)
                 {
-                    Process.Start(listNews[1].link);
+                    Process.Start(newsList[1].Link);
                 }
             }
         }
@@ -652,9 +623,9 @@ namespace MiniLauncherStyle
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                if (listNews != null && listNews.Count >= 3)
+                if (newsList != null && newsList.Count >= 3)
                 {
-                    Process.Start(listNews[2].link);
+                    Process.Start(newsList[2].Link);
                 }
             }
         }
@@ -716,7 +687,7 @@ namespace MiniLauncherStyle
             {
                 var nation = item.Tag.ToString().Replace('-', '_');
                 
-                var encoded = EncodeNationCode(nation);
+                var encoded = NationCodeHelper.EncodeNationCode(nation);
 
                 if (nation == LauncherConfig.GetInstance.NationalConfig.NationCode.ToString())
                 {
@@ -733,48 +704,6 @@ namespace MiniLauncherStyle
                 });
 
                 System.Windows.Application.Current.Shutdown();
-            }
-        }
-        
-        private string EncodeNationCode(string code)
-        {
-            switch (code)
-            {
-                case "ko_kr":
-                    return "Korea";
-
-                case "pt_br":
-                    return "Brazil";
-
-                case "zn_cn":
-                    return "China";
-
-                case "en_gb":
-                    return "Europe";
-
-                case "en_id":
-                    return "Indonesia";
-
-                case "ja_jp":
-                    return "Japan";
-
-                case "en_ph":
-                    return "Philippines";
-
-                case "ru_ru":
-                    return "Russia";
-
-                case "zh_tw":
-                    return "Taiwan";
-
-                case "es_es":
-                    return "Spain";
-
-                case "th_th":
-                    return "Thailand";
-
-                default:
-                    return "Russia";
             }
         }
     }

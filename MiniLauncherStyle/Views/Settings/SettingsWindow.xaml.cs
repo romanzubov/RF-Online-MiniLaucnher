@@ -1,52 +1,53 @@
 ﻿using MiniLauncher.Data;
 using MiniLauncher.Helper;
 using MiniLauncher.Utils;
+using MiniLauncherStyle.Data;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Management;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using static MiniLauncher.View.Settings;
 
 namespace MiniLauncherStyle.Views.Settings
 {
     /// <summary>
-    /// Interaction logic for SettingsWindow.xaml
+    /// Окно настроек игры.
     /// </summary>
     public partial class SettingsWindow : Window
     {
-        public bool clientUpdateRequeried { get; set; }
-        private LocalizationManager Lm;
-        private readonly R3EngineSettings config;
-        private float[] gamma_array = { 0.8f, 1.0f, 1.2f, 1.4f, 1.6f, 1.8f };
-        private string[] illimonation_quality_array;
-        private string[] texture_quality_array;
-        private string[] lightning_shadow_quality_array;
+        private const string ConfigFileName = ".\\R3Engine.ini";
+        private const string CredentialStoragePath = ".\\credential_storage.json";
 
-        private double m_x;
-        private double m_y;
+        public bool ClientUpdateRequired { get; set; }
+        
+        private readonly LocalizationManager localization;
+        private readonly R3EngineSettings config;
+        
+        private static readonly float[] GammaValues = { 0.8f, 1.0f, 1.2f, 1.4f, 1.6f, 1.8f };
+        private string[] illuminationQualityLabels;
+        private string[] textureQualityLabels;
+        private string[] lightingShadowQualityLabels;
+
+        private readonly double initialX;
+        private readonly double initialY;
+
         public SettingsWindow(double x, double y)
         {
-            m_x = x;
-            m_y = y;
-            clientUpdateRequeried = false;
-            Lm = LocalizationManager.GetInstance;
+            initialX = x;
+            initialY = y;
+            ClientUpdateRequired = false;
+            localization = LocalizationManager.GetInstance;
+            
             InitializeComponent();
             InitLocalization();
             InitializeVideoAndResolution();
-            config = InitializeConfig();
+            
+            config = LoadConfig();
             if (!config.IsDefault())
             {
-                InitializeForm();
+                InitializeFormFromConfig();
             }
 
             if (!LauncherConfig.GetInstance.UpdateConfig.ClientUpdateEnable)
@@ -54,44 +55,47 @@ namespace MiniLauncherStyle.Views.Settings
                 btn_repair_client.IsEnabled = false;
             }
         }
+
         private void InitLocalization()
         {
-            this.Title = Lm.GetString("settings_label");
-            //this.Content = Lm.GetString("settings_label");
-            illimonation_quality_array = new string[3];
-            illimonation_quality_array[0] = Lm.GetString("settings_label_disable");
-            illimonation_quality_array[1] = Lm.GetString("settings_label_low");
-            illimonation_quality_array[2] = Lm.GetString("settings_label_high");
+            Title = localization.GetString("settings_label");
 
-            texture_quality_array = new string[4];
-            texture_quality_array[0] = Lm.GetString("settings_label_low");
-            texture_quality_array[1] = Lm.GetString("settings_label_mean");
-            texture_quality_array[2] = Lm.GetString("settings_label_high");
-            texture_quality_array[3] = Lm.GetString("settings_label_ultra");
+            illuminationQualityLabels = new[]
+            {
+                localization.GetString("settings_label_disable"),
+                localization.GetString("settings_label_low"),
+                localization.GetString("settings_label_high")
+            };
 
-            lightning_shadow_quality_array = new string[4];
-            lightning_shadow_quality_array[0] = Lm.GetString("settings_label_disable");
-            lightning_shadow_quality_array[1] = Lm.GetString("settings_label_low");
-            lightning_shadow_quality_array[2] = Lm.GetString("settings_label_mean");
-            lightning_shadow_quality_array[3] = Lm.GetString("settings_label_high");
+            textureQualityLabels = new[]
+            {
+                localization.GetString("settings_label_low"),
+                localization.GetString("settings_label_mean"),
+                localization.GetString("settings_label_high"),
+                localization.GetString("settings_label_ultra")
+            };
 
-            //ForAllControls(this, control =>
-            //{
-            //    control.Text = Lm.GetString(control.Name);
-            //});
+            lightingShadowQualityLabels = new[]
+            {
+                localization.GetString("settings_label_disable"),
+                localization.GetString("settings_label_low"),
+                localization.GetString("settings_label_mean"),
+                localization.GetString("settings_label_high")
+            };
         }
+
         private void InitializeVideoAndResolution()
         {
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DisplayConfiguration");
-
-            string graphicsCard = string.Empty;
-            foreach (ManagementObject mo in searcher.Get())
+            using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DisplayConfiguration"))
             {
-                foreach (PropertyData property in mo.Properties)
+                foreach (ManagementObject mo in searcher.Get())
                 {
-                    if (property.Name == "Description")
+                    foreach (PropertyData property in mo.Properties)
                     {
-                        video_adapter_list.Items.Add(property.Value.ToString());
+                        if (property.Name == "Description" && property.Value != null)
+                        {
+                            video_adapter_list.Items.Add(property.Value.ToString());
+                        }
                     }
                 }
             }
@@ -100,65 +104,74 @@ namespace MiniLauncherStyle.Views.Settings
             int i = 0;
             while (EnumDisplaySettings(null, i, ref vDevMode))
             {
-                if (!resolution_list.Items.Contains($"{vDevMode.dmPelsWidth}x{vDevMode.dmPelsHeight}"))
+                string resolution = $"{vDevMode.dmPelsWidth}x{vDevMode.dmPelsHeight}";
+                if (!resolution_list.Items.Contains(resolution))
                 {
-                    resolution_list.Items.Add($"{vDevMode.dmPelsWidth}x{vDevMode.dmPelsHeight}");
+                    resolution_list.Items.Add(resolution);
                 }
                 i++;
             }
 
-            resolution_list.SelectedIndex = 0;
-            video_adapter_list.SelectedIndex = 0;
+            if (resolution_list.Items.Count > 0) resolution_list.SelectedIndex = 0;
+            if (video_adapter_list.Items.Count > 0) video_adapter_list.SelectedIndex = 0;
         }
-        private R3EngineSettings InitializeConfig()
+
+        private R3EngineSettings LoadConfig()
         {
             var cfg = new R3EngineSettings();
-            if (File.Exists(".\\R3Engine.ini"))
-            {
-                try
-                {
-                    var ini = new IniFile(".\\R3Engine.ini");
-                    // RENDER STATE //
-                    cfg.ScreenXSize = Int32.Parse(ini.ReadReverse("RenderState", "ScreenXSize"));
-                    cfg.ScreenYSize = Int32.Parse(ini.ReadReverse("RenderState", "ScreenYSize"));
-                    cfg.RenderBits = Int32.Parse(ini.ReadReverse("RenderState", "RenderBits"));
-                    cfg.BboShasi = Int32.Parse(ini.ReadReverse("RenderState", "BboShasi"));
-                    cfg.Gamma = float.Parse(ini.ReadReverse("RenderState", "Gamma").Replace('.', ','));
-                    cfg.DynamicLight = Int32.Parse(ini.ReadReverse("RenderState", "DynamicLight"));
-                    cfg.ShadowDetail = Int32.Parse(ini.ReadReverse("RenderState", "ShadowDetail"));
-                    cfg.Adapter = ini.ReadReverse("RenderState", "Adapter");
-                    cfg.SeeDistance = Int32.Parse(ini.ReadReverse("RenderState", "SeeDistance"));
-                    cfg.TextureDetail = Int32.Parse(ini.ReadReverse("RenderState", "TextureDetail"));
-                    cfg.bFullScreen = !bool.Parse(ini.ReadReverse("RenderState", "bFullScreen"));
-                    cfg.bMouseAccelation = bool.Parse(ini.ReadReverse("RenderState", "bMouseAccelation"));
-                    cfg.bDetailTexture = bool.Parse(ini.ReadReverse("RenderState", "bDetailTexture"));
-                    if (ini.KeyExists("close_launcher_after_login", "Launcher"))
-                    {
-                        cfg.close_launcher_after_login = bool.Parse(ini.ReadReverse("Launcher", "close_launcher_after_login"));
-                    }
-                    else
-                    {
-                        ini.Write("close_launcher_after_login", "FALSE", "Launcher");
-                    }
-                    // Sound STATE //
-                    cfg.Sound = bool.Parse(ini.ReadReverse("Sound", "Sound"));
-                    cfg.music = bool.Parse(ini.ReadReverse("Sound", "music"));
-                }
-                catch (Exception)
-                {
-                    File.Delete(".\\R3Engine.ini");
-                    cfg.SetDefault();
-                    SaveConfig(cfg);
-                }
-            }
-            else
+            
+            if (!File.Exists(ConfigFileName))
             {
                 cfg.SetDefault();
+                return cfg;
             }
+
+            try
+            {
+                var ini = new IniFile(ConfigFileName);
+                
+                // Render State
+                cfg.ScreenXSize = int.Parse(ini.ReadReverse("RenderState", "ScreenXSize"));
+                cfg.ScreenYSize = int.Parse(ini.ReadReverse("RenderState", "ScreenYSize"));
+                cfg.RenderBits = int.Parse(ini.ReadReverse("RenderState", "RenderBits"));
+                cfg.BboShasi = int.Parse(ini.ReadReverse("RenderState", "BboShasi"));
+                cfg.Gamma = float.Parse(ini.ReadReverse("RenderState", "Gamma").Replace('.', ','));
+                cfg.DynamicLight = int.Parse(ini.ReadReverse("RenderState", "DynamicLight"));
+                cfg.ShadowDetail = int.Parse(ini.ReadReverse("RenderState", "ShadowDetail"));
+                cfg.Adapter = ini.ReadReverse("RenderState", "Adapter");
+                cfg.SeeDistance = int.Parse(ini.ReadReverse("RenderState", "SeeDistance"));
+                cfg.TextureDetail = int.Parse(ini.ReadReverse("RenderState", "TextureDetail"));
+                cfg.IsFullScreen = !bool.Parse(ini.ReadReverse("RenderState", "bFullScreen"));
+                cfg.IsMouseAccelerationEnabled = bool.Parse(ini.ReadReverse("RenderState", "bMouseAccelation"));
+                cfg.IsDetailTextureEnabled = bool.Parse(ini.ReadReverse("RenderState", "bDetailTexture"));
+                
+                // Launcher
+                if (ini.KeyExists("close_launcher_after_login", "Launcher"))
+                {
+                    cfg.CloseLauncherAfterLogin = bool.Parse(ini.ReadReverse("Launcher", "close_launcher_after_login"));
+                }
+                else
+                {
+                    ini.Write("close_launcher_after_login", "FALSE", "Launcher");
+                }
+                
+                // Sound
+                cfg.IsSoundEnabled = bool.Parse(ini.ReadReverse("Sound", "Sound"));
+                cfg.IsMusicEnabled = bool.Parse(ini.ReadReverse("Sound", "music"));
+            }
+            catch (Exception)
+            {
+                File.Delete(ConfigFileName);
+                cfg.SetDefault();
+                SaveConfig(cfg);
+            }
+            
             return cfg;
         }
-        private void InitializeForm()
+
+        private void InitializeFormFromConfig()
         {
+            // Video Adapter
             for (int i = 0; i < video_adapter_list.Items.Count; i++)
             {
                 if (video_adapter_list.Items[i].ToString() == config.Adapter.Replace('%', ' '))
@@ -167,121 +180,138 @@ namespace MiniLauncherStyle.Views.Settings
                     break;
                 }
             }
+
+            // Resolution
+            string targetResolution = $"{config.ScreenXSize}x{config.ScreenYSize}";
             for (int i = 0; i < resolution_list.Items.Count; i++)
             {
-                if (resolution_list.Items[i].ToString() == String.Format("{0}x{1}", config.ScreenXSize, config.ScreenYSize))
+                if (resolution_list.Items[i].ToString() == targetResolution)
                 {
                     resolution_list.SelectedIndex = i;
                     break;
                 }
             }
+
             texture_quality_bar.Value = config.TextureDetail;
             lightning_quality_bar.Value = config.DynamicLight;
             shadow_quality_bar.Value = config.ShadowDetail;
 
-            for (int i = 0; i < gamma_array.Length; i++)
+            for (int i = 0; i < GammaValues.Length; i++)
             {
-                if (gamma_array[i] == config.Gamma)
+                if (Math.Abs(GammaValues[i] - config.Gamma) < 0.01f)
                 {
                     gamma_bar.Value = i;
-                    gamma_label.Text = gamma_array[(int)gamma_bar.Value].ToString();
+                    gamma_label.Text = GammaValues[i].ToString();
                     break;
                 }
             }
+
             illimination_quality_bar.Value = config.BboShasi;
-            window_mode_check.IsChecked = config.bFullScreen;
-            mouse_acceleration_check.IsChecked = config.bMouseAccelation;
-            texture_detalization_check.IsChecked = config.bDetailTexture;
-            music_check.IsChecked = config.music;
-            effects_check.IsChecked = config.Sound;
+            window_mode_check.IsChecked = config.IsFullScreen;
+            mouse_acceleration_check.IsChecked = config.IsMouseAccelerationEnabled;
+            texture_detalization_check.IsChecked = config.IsDetailTextureEnabled;
+            music_check.IsChecked = config.IsMusicEnabled;
+            effects_check.IsChecked = config.IsSoundEnabled;
 
-            illimination_quality_label.Text = illimonation_quality_array[(int)illimination_quality_bar.Value];
-            lightning_quality_label.Text = lightning_shadow_quality_array[(int)lightning_quality_bar.Value];
-            shadow_quality_label.Text = lightning_shadow_quality_array[(int)shadow_quality_bar.Value];
-            texture_quality_label.Text = texture_quality_array[(int)texture_quality_bar.Value];
+            illimination_quality_label.Text = illuminationQualityLabels[(int)illimination_quality_bar.Value];
+            lightning_quality_label.Text = lightingShadowQualityLabels[(int)lightning_quality_bar.Value];
+            shadow_quality_label.Text = lightingShadowQualityLabels[(int)shadow_quality_bar.Value];
+            texture_quality_label.Text = textureQualityLabels[(int)texture_quality_bar.Value];
 
-            close_launcher_after_login.IsChecked = config.close_launcher_after_login;
+            close_launcher_after_login.IsChecked = config.CloseLauncherAfterLogin;
         }
 
-        private void SaveConfig(R3EngineSettings config)
+        private void SaveConfig(R3EngineSettings settings)
         {
-            if (!File.Exists(".\\R3Engine.ini"))
+            if (!File.Exists(ConfigFileName))
             {
-                File.Create(".\\R3Engine.ini").Close();
+                File.Create(ConfigFileName).Close();
             }
 
-            var ini = new IniFile(".\\R3Engine.ini");
+            var ini = new IniFile(ConfigFileName);
 
-            // Setup //
+            // Setup
             ini.WriteNew("Setup", "Language", "Russia");
-            // RENDER STATE //
-            ini.WriteNew("RenderState", "ScreenXSize", resolution_list.SelectedItem.ToString().Split('x')[0]);
-            ini.WriteNew("RenderState", "ScreenYSize", resolution_list.SelectedItem.ToString().Split('x')[1]);
-            ini.WriteNew("RenderState", "RenderBits", config.RenderBits.ToString());
-            ini.WriteNew("RenderState", "BboShasi", config.BboShasi.ToString());
-            ini.WriteNew("RenderState", "Gamma", config.Gamma.ToString().Replace(',', '.'));
-            ini.WriteNew("RenderState", "DynamicLight", config.DynamicLight.ToString());
-            ini.WriteNew("RenderState", "ShadowDetail", config.ShadowDetail.ToString());
+            
+            // Render State
+            string[] resolution = resolution_list.SelectedItem.ToString().Split('x');
+            ini.WriteNew("RenderState", "ScreenXSize", resolution[0]);
+            ini.WriteNew("RenderState", "ScreenYSize", resolution[1]);
+            ini.WriteNew("RenderState", "RenderBits", settings.RenderBits.ToString());
+            ini.WriteNew("RenderState", "BboShasi", settings.BboShasi.ToString());
+            ini.WriteNew("RenderState", "Gamma", settings.Gamma.ToString().Replace(',', '.'));
+            ini.WriteNew("RenderState", "DynamicLight", settings.DynamicLight.ToString());
+            ini.WriteNew("RenderState", "ShadowDetail", settings.ShadowDetail.ToString());
             ini.WriteNew("RenderState", "Adapter", video_adapter_list.SelectedItem.ToString().Replace(' ', '%'));
-            ini.WriteNew("RenderState", "SeeDistance", config.SeeDistance.ToString());
-            ini.WriteNew("RenderState", "TextureDetail", config.TextureDetail.ToString());
+            ini.WriteNew("RenderState", "SeeDistance", settings.SeeDistance.ToString());
+            ini.WriteNew("RenderState", "TextureDetail", settings.TextureDetail.ToString());
             ini.WriteNew("RenderState", "bFullScreen", (!window_mode_check.IsChecked).ToString().ToUpper());
             ini.WriteNew("RenderState", "bMouseAccelation", mouse_acceleration_check.IsChecked.ToString().ToUpper());
             ini.WriteNew("RenderState", "bDetailTexture", texture_detalization_check.IsChecked.ToString().ToUpper());
 
-            // Sound STATE //
+            // Sound
             ini.WriteNew("Sound", "MusicVol", "0.2");
             ini.WriteNew("Sound", "SoundVol", "0.2");
             ini.WriteNew("Sound", "AmbVol", "0.2");
             ini.WriteNew("Sound", "Sound", effects_check.IsChecked.ToString().ToUpper());
             ini.WriteNew("Sound", "music", music_check.IsChecked.ToString().ToUpper());
-            // AutoLogin //
+            
+            // AutoLogin
             ini.WriteNew("AutoLogin", "Use", "FALSE");
-            // Launcher Other Settings //
+            
+            // Launcher
             ini.WriteNew("Launcher", "close_launcher_after_login", close_launcher_after_login.IsChecked.ToString().ToUpper());
-
         }
+
+        #region Event Handlers
 
         private void Rectangle_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
-                this.DragMove();
+            {
+                DragMove();
+            }
         }
 
         private void Grid_Loaded(object sender, RoutedEventArgs e)
         {
-            Top = m_x;
-            Left = m_y;
+            Top = initialX;
+            Left = initialY;
         }
 
         private void Gamma_bar_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            gamma_label.Text = gamma_array[(int)gamma_bar.Value].ToString();
-            config.Gamma = gamma_array[(int)gamma_bar.Value];
+            int index = (int)gamma_bar.Value;
+            gamma_label.Text = GammaValues[index].ToString();
+            config.Gamma = GammaValues[index];
         }
 
         private void Shadow_quality_bar_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            shadow_quality_label.Text = lightning_shadow_quality_array[(int)shadow_quality_bar.Value];
-            config.ShadowDetail = (int)shadow_quality_bar.Value;
+            int index = (int)shadow_quality_bar.Value;
+            shadow_quality_label.Text = lightingShadowQualityLabels[index];
+            config.ShadowDetail = index;
         }
 
         private void Illimination_quality_bar_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            illimination_quality_label.Text = illimonation_quality_array[(int)illimination_quality_bar.Value];
-            config.BboShasi = (int)illimination_quality_bar.Value;
+            int index = (int)illimination_quality_bar.Value;
+            illimination_quality_label.Text = illuminationQualityLabels[index];
+            config.BboShasi = index;
         }
 
         private void Lightning_quality_bar_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            lightning_quality_label.Text = lightning_shadow_quality_array[(int)lightning_quality_bar.Value];
-            config.DynamicLight = (int)lightning_quality_bar.Value;
+            int index = (int)lightning_quality_bar.Value;
+            lightning_quality_label.Text = lightingShadowQualityLabels[index];
+            config.DynamicLight = index;
         }
 
         private void Texture_quality_bar_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            texture_quality_label.Text = texture_quality_array[(int)texture_quality_bar.Value];
-            config.TextureDetail = (int)texture_quality_bar.Value;
+            int index = (int)texture_quality_bar.Value;
+            texture_quality_label.Text = textureQualityLabels[index];
+            config.TextureDetail = index;
         }
 
         private void Btn_save_Click(object sender, RoutedEventArgs e)
@@ -292,57 +322,26 @@ namespace MiniLauncherStyle.Views.Settings
 
         private void Btn_cancel_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Close();
         }
 
         private void Btn_clean_passwords_Click(object sender, RoutedEventArgs e)
         {
-            UserCredential.CleanData(".\\credential_storage.json");
+            UserCredential.CleanData(CredentialStoragePath);
         }
 
         private void Btn_repair_client_Click(object sender, RoutedEventArgs e)
         {
-            if (File.Exists($".\\{LauncherConfig.GetInstance.ServerConfig.Title}.lock"))
+            string lockFile = $".\\{LauncherConfig.GetInstance.ServerConfig.Title}.lock";
+            
+            if (File.Exists(lockFile))
             {
-                File.Delete($".\\{LauncherConfig.GetInstance.ServerConfig.Title}.lock");
-                clientUpdateRequeried = true;
+                File.Delete(lockFile);
+                ClientUpdateRequired = true;
                 Close();
             }
         }
-    }
 
-    public class R3EngineSettings
-    {
-
-        public R3EngineSettings()
-        {
-            isDefault = false;
-        }
-        public int ScreenXSize { get; set; }
-        public int ScreenYSize { get; set; }
-        public int RenderBits { get; set; }
-        public int BboShasi { get; set; }
-        public float Gamma { get; set; }
-        public int DynamicLight { get; set; }
-        public int ShadowDetail { get; set; }
-        public string Adapter { get; set; }
-        public int SeeDistance { get; set; }
-        public int TextureDetail { get; set; }
-        public bool bFullScreen { get; set; }
-        public bool bMouseAccelation { get; set; }
-        public bool bDetailTexture { get; set; }
-        public bool Sound { get; set; }
-        public bool music { get; set; }
-        public bool close_launcher_after_login { get; set; }
-        private bool isDefault { get; set; }
-        internal void SetDefault()
-        {
-            isDefault = true;
-            Gamma = 1.0f;
-        }
-        internal bool IsDefault()
-        {
-            return isDefault;
-        }
+        #endregion
     }
 }

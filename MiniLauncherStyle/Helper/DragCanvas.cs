@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -10,18 +7,27 @@ using System.Windows.Media.Media3D;
 
 namespace MiniLauncherStyle.Helper
 {
+    /// <summary>
+    /// Canvas с поддержкой перетаскивания дочерних элементов.
+    /// </summary>
     public class DragCanvas : Canvas
     {
-        #region Data 
-
+        #region Fields
 
         private UIElement elementBeingDragged;
         private Point origCursorLocation;
         private double origHorizOffset, origVertOffset;
         private bool modifyLeftOffset, modifyTopOffset;
         private bool isDragInProgress;
+        
         #endregion
-        #region Static Constructor 
+
+        #region Dependency Properties
+
+        public static readonly DependencyProperty AllowDraggingProperty;
+        public static readonly DependencyProperty AllowDragOutOfViewProperty;
+        public static readonly DependencyProperty CanBeDraggedProperty;
+
         static DragCanvas()
         {
             AllowDraggingProperty = DependencyProperty.Register(
@@ -44,19 +50,58 @@ namespace MiniLauncherStyle.Helper
         }
 
         #endregion
-        #region Constructor 
-        public DragCanvas()
+
+        #region Properties
+
+        public bool AllowDragging
         {
+            get { return (bool)GetValue(AllowDraggingProperty); }
+            set { SetValue(AllowDraggingProperty, value); }
+        }
+
+        public bool AllowDragOutOfView
+        {
+            get { return (bool)GetValue(AllowDragOutOfViewProperty); }
+            set { SetValue(AllowDragOutOfViewProperty, value); }
+        }
+
+        public UIElement ElementBeingDragged
+        {
+            get
+            {
+                if (!AllowDragging)
+                    return null;
+                
+                return elementBeingDragged;
+            }
+            protected set
+            {
+                if (elementBeingDragged != null)
+                    elementBeingDragged.ReleaseMouseCapture();
+
+                if (!AllowDragging)
+                {
+                    elementBeingDragged = null;
+                }
+                else
+                {
+                    if (GetCanBeDragged(value))
+                    {
+                        elementBeingDragged = value;
+                        elementBeingDragged.CaptureMouse();
+                    }
+                    else
+                    {
+                        elementBeingDragged = null;
+                    }
+                }
+            }
         }
 
         #endregion
 
-        #region Attached Properties 
+        #region Attached Property Accessors
 
-        #region CanBeDragged 
-
-
-        public static readonly DependencyProperty CanBeDraggedProperty;
         public static bool GetCanBeDragged(UIElement uiElement)
         {
             if (uiElement == null)
@@ -64,6 +109,7 @@ namespace MiniLauncherStyle.Helper
 
             return (bool)uiElement.GetValue(CanBeDraggedProperty);
         }
+
         public static void SetCanBeDragged(UIElement uiElement, bool value)
         {
             if (uiElement != null)
@@ -72,81 +118,26 @@ namespace MiniLauncherStyle.Helper
 
         #endregion
 
-        #endregion
+        #region Public Methods
 
-        #region Interface 
-
-        #region AllowDragging 
-        public static readonly DependencyProperty AllowDraggingProperty;
-        public bool AllowDragging
-        {
-            get { return (bool)base.GetValue(AllowDraggingProperty); }
-            set { base.SetValue(AllowDraggingProperty, value); }
-        }
-
-        #endregion
-
-        #region AllowDragOutOfView 
-        public static readonly DependencyProperty AllowDragOutOfViewProperty;
-        public bool AllowDragOutOfView
-        {
-            get { return (bool)GetValue(AllowDragOutOfViewProperty); }
-            set { SetValue(AllowDragOutOfViewProperty, value); }
-        }
-
-        #endregion
-        #region BringToFront / SendToBack 
         public void BringToFront(UIElement element)
         {
-            this.UpdateZOrder(element, true);
+            UpdateZOrder(element, true);
         }
+
         public void SendToBack(UIElement element)
         {
-            this.UpdateZOrder(element, false);
+            UpdateZOrder(element, false);
         }
 
-        #endregion
-
-        #region ElementBeingDragged 
-        public UIElement ElementBeingDragged
-        {
-            get
-            {
-                if (!this.AllowDragging)
-                    return null;
-                else
-                    return this.elementBeingDragged;
-            }
-            protected set
-            {
-                if (this.elementBeingDragged != null)
-                    this.elementBeingDragged.ReleaseMouseCapture();
-
-                if (!this.AllowDragging)
-                    this.elementBeingDragged = null;
-                else
-                {
-                    if (DragCanvas.GetCanBeDragged(value))
-                    {
-                        this.elementBeingDragged = value;
-                        this.elementBeingDragged.CaptureMouse();
-                    }
-                    else
-                        this.elementBeingDragged = null;
-                }
-            }
-        }
-
-        #endregion
-
-        #region FindCanvasChild 
         public UIElement FindCanvasChild(DependencyObject depObj)
         {
             while (depObj != null)
             {
                 UIElement elem = depObj as UIElement;
-                if (elem != null && base.Children.Contains(elem))
+                if (elem != null && Children.Contains(elem))
                     break;
+                    
                 if (depObj is Visual || depObj is Visual3D)
                     depObj = VisualTreeHelper.GetParent(depObj);
                 else
@@ -157,47 +148,45 @@ namespace MiniLauncherStyle.Helper
 
         #endregion
 
-        #endregion
-
-        #region Overrides 
-
-        #region OnPreviewMouseLeftButtonDown 
-
+        #region Protected Overrides
 
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
         {
             base.OnPreviewMouseLeftButtonDown(e);
-            this.isDragInProgress = false;
-            this.origCursorLocation = e.GetPosition(this);
-            this.ElementBeingDragged = this.FindCanvasChild(e.Source as DependencyObject);
-            if (this.ElementBeingDragged == null)
+            
+            isDragInProgress = false;
+            origCursorLocation = e.GetPosition(this);
+            ElementBeingDragged = FindCanvasChild(e.Source as DependencyObject);
+            
+            if (ElementBeingDragged == null)
                 return;
 
-            double left = Canvas.GetLeft(this.ElementBeingDragged);
-            double right = Canvas.GetRight(this.ElementBeingDragged);
-            double top = Canvas.GetTop(this.ElementBeingDragged);
-            double bottom = Canvas.GetBottom(this.ElementBeingDragged);
-            this.origHorizOffset = ResolveOffset(left, right, out this.modifyLeftOffset);
-            this.origVertOffset = ResolveOffset(top, bottom, out this.modifyTopOffset);
+            double left = Canvas.GetLeft(ElementBeingDragged);
+            double right = Canvas.GetRight(ElementBeingDragged);
+            double top = Canvas.GetTop(ElementBeingDragged);
+            double bottom = Canvas.GetBottom(ElementBeingDragged);
+            
+            origHorizOffset = ResolveOffset(left, right, out modifyLeftOffset);
+            origVertOffset = ResolveOffset(top, bottom, out modifyTopOffset);
+            
             e.Handled = true;
-
-            this.isDragInProgress = true;
+            isDragInProgress = true;
         }
 
-        #endregion
-
-        #region OnPreviewMouseMove 
         protected override void OnPreviewMouseMove(MouseEventArgs e)
         {
             base.OnPreviewMouseMove(e);
-            if (this.ElementBeingDragged == null || !this.isDragInProgress)
+            
+            if (ElementBeingDragged == null || !isDragInProgress)
                 return;
+                
             Point cursorLocation = e.GetPosition(this);
             double newHorizontalOffset, newVerticalOffset;
 
-            #region Calculate Offsets 
-            if (this.modifyLeftOffset)
-                newHorizontalOffset = this.origHorizOffset + (cursorLocation.X - this.origCursorLocation.X);
+            #region Calculate Offsets
+
+            if (modifyLeftOffset)
+                newHorizontalOffset = origHorizOffset + (cursorLocation.X - origCursorLocation.X);
             else
                 newHorizontalOffset = this.origHorizOffset - (cursorLocation.X - this.origCursorLocation.X);
             if (this.modifyTopOffset)
@@ -246,9 +235,6 @@ namespace MiniLauncherStyle.Helper
             #endregion
         }
 
-        #endregion
-
-        #region OnHostPreviewMouseUp 
         protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
         {
             base.OnPreviewMouseUp(e);
@@ -256,7 +242,7 @@ namespace MiniLauncherStyle.Helper
         }
 
         #endregion
-        #endregion
+
         #region Private Helpers 
         #region CalculateDragElementRect 
         private Rect CalculateDragElementRect(double newHorizOffset, double newVertOffset)

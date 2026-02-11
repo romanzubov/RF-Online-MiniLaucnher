@@ -6,31 +6,41 @@ using System.Windows.Markup;
 
 namespace MiniLauncherStyle.Extensions
 {
+    /// <summary>
+    /// XAML Markup расширение для локализации текстовых ресурсов.
+    /// Использование: Text="{local:Loc Key=resource_key}"
+    /// </summary>
     [MarkupExtensionReturnType(typeof(string))]
     public class LocExtension : MarkupExtension
     {
-        public string Key { get; set; } = "";
+        private static readonly bool isDesignMode = (bool)DesignerProperties.IsInDesignModeProperty
+            .GetMetadata(typeof(DependencyObject)).DefaultValue;
+
+        /// <summary>
+        /// Ключ локализованной строки в ресурсах.
+        /// </summary>
+        public string Key { get; set; } = string.Empty;
 
         public LocExtension() { }
-        public LocExtension(string key) => Key = key;
+
+        public LocExtension(string key)
+        {
+            Key = key ?? string.Empty;
+        }
 
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
-            if (IsInDesignMode())
+            if (string.IsNullOrEmpty(Key))
             {
-                // что показывать в дизайнере
+                return string.Empty;
+            }
+
+            if (isDesignMode)
+            {
                 return $"[{Key}]";
             }
-            // Простой вариант: возвращаем строку
-            // Если нужен авто-рефреш при смене языка — см. вариант 2 ниже
-            return LocalizationManager.GetInstance.GetString(Key);
-        }
 
-        private static bool IsInDesignMode()
-        {
-            // Работает и для дизайнера, и для runtime
-            return (bool)DesignerProperties.IsInDesignModeProperty
-                .GetMetadata(typeof(DependencyObject)).DefaultValue;
+            return LocalizationManager.GetInstance.GetString(Key);
         }
     }
 }

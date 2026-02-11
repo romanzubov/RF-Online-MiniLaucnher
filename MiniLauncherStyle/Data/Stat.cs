@@ -1,16 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Newtonsoft.Json;
 
 namespace MiniLauncherStyle.Data
 {
-    public class Stat
+    /// <summary>
+    /// Модель данных статистики Chip War для десериализации из JSON.
+    /// </summary>
+    public class ChipWarStatistics
     {
-        public int bcc { get; set; }
-        public int ccc { get; set; }
-        public int acc { get; set; }
-        public string destroed_race  { get; set; }
-        public int ore_percent { get; set; }
+        [JsonProperty("bcc")]
+        public int BccPercent { get; set; }
+
+        [JsonProperty("ccc")]
+        public int CccPercent { get; set; }
+
+        [JsonProperty("acc")]
+        public int AccPercent { get; set; }
+
+        [JsonProperty("destroed_race")]
+        public string DestroyedRace { get; set; }
+
+        [JsonProperty("ore_percent")]
+        public int OrePercent { get; set; }
     }
 }

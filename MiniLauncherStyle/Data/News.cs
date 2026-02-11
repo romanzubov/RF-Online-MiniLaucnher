@@ -1,15 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Newtonsoft.Json;
 
 namespace MiniLauncherStyle.Data
 {
-    public class News
+    /// <summary>
+    /// Модель данных новости для десериализации из JSON.
+    /// </summary>
+    public class NewsItem
     {
-        public string  link { get; set; }
-        public string author { get; set; }
-        public string datetime { get; set; }
-        public string text { get; set; }
+        [JsonProperty("link")]
+        public string Link { get; set; }
+
+        [JsonProperty("author")]
+        public string Author { get; set; }
+
+        [JsonProperty("datetime")]
+        public string DateTime { get; set; }
+
+        [JsonProperty("text")]
+        public string Text { get; set; }
     }
 }
