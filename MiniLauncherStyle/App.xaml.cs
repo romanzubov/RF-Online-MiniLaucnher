@@ -1,7 +1,9 @@
 ﻿using MiniLauncher.Data;
 using MiniLauncher.Helper;
 using MiniLauncher.View;
+using MiniLauncherStyle.Core;
 using MiniLauncherStyle.Services;
+using MiniLauncherStyle.Services.Interfaces;
 using System;
 using System.Net;
 using System.Windows;
@@ -34,6 +36,9 @@ namespace MiniLauncherStyle
                 return;
             }
 
+            // Регистрация сервисов в DI контейнере
+            RegisterServices();
+
             System.Windows.Forms.Application.EnableVisualStyles();
             System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
 
@@ -48,6 +53,24 @@ namespace MiniLauncherStyle
             {
                 Environment.Exit(0);
             }
+        }
+
+        /// <summary>
+        /// Регистрирует все сервисы в DI контейнере.
+        /// </summary>
+        private static void RegisterServices()
+        {
+            var locator = ServiceLocator.Current;
+            
+            // Регистрация базовых сервисов
+            var dialogService = new DialogService();
+            locator.Register<IDialogService>(dialogService);
+            
+            // Регистрация остальных сервисов
+            locator.Register<IContentService>(new ContentService());
+            locator.Register<IGameService>(new GameService(dialogService));
+            locator.Register<INavigationService>(new NavigationService());
+            locator.Register<ISettingsService>(new SettingsService());
         }
 
         private static bool InitConfig()

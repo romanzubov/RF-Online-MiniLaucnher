@@ -4,8 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MiniLauncherStyle.Extensions"
+        xmlns:vm="clr-namespace:MiniLauncherStyle.ViewModels"
         mc:Ignorable="d"
-        Title="MainWindow" Height="360" Width="700" WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True" Background="White" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Closing="Window_Closing" Icon="favicon.ico">
+        Title="{Binding WindowTitle}" Height="360" Width="700" WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True" Background="White" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Closing="Window_Closing" Icon="favicon.ico">
     <Grid >
         <Grid.Background>
             <ImageBrush ImageSource="images\Background.png"/>
@@ -25,17 +26,17 @@
                         <ImageBrush ImageSource="images\Block.png"/>
                     </Canvas.Background>
                 </Canvas>
-                <Rectangle x:Name="status_off" HorizontalAlignment="Left" Height="44" Margin="-4.965,-7.874,0,-7.126" Stroke="#00000000" VerticalAlignment="Top" Width="43" Visibility="Hidden">
+                <Rectangle x:Name="status_off" HorizontalAlignment="Left" Height="44" Margin="-4.965,-7.874,0,-7.126" Stroke="#00000000" VerticalAlignment="Top" Width="43" Visibility="{Binding StatusOffVisible, Converter={StaticResource BoolToVisibility}}">
                     <Rectangle.Fill>
                         <ImageBrush ImageSource="images\status_off.png"/>
                     </Rectangle.Fill>
                 </Rectangle>
-                <Rectangle x:Name="status_on" HorizontalAlignment="Left" Height="18" Margin="7.035,5.126,0,0" Stroke="#00000000" VerticalAlignment="Top" Width="19" RenderTransformOrigin="0.735,1.16" d:IsHidden="True">
+                <Rectangle x:Name="status_on" HorizontalAlignment="Left" Height="18" Margin="7.035,5.126,0,0" Stroke="#00000000" VerticalAlignment="Top" Width="19" RenderTransformOrigin="0.735,1.16" Visibility="{Binding StatusOnVisible, Converter={StaticResource BoolToVisibility}}">
                     <Rectangle.Fill>
                         <ImageBrush ImageSource="images\status_on.png"/>
                     </Rectangle.Fill>
                 </Rectangle>
-                <TextBlock x:Name="status_label" HorizontalAlignment="Left" Height="19" Margin="38.035,6.46,-25,0" TextWrapping="Wrap" Text="Сервер онлайн" VerticalAlignment="Top" Width="111.965" Foreground="#FF28F308" FontFamily="Segoe UI Black"/>
+                <TextBlock x:Name="status_label" HorizontalAlignment="Left" Height="19" Margin="38.035,6.46,-25,0" TextWrapping="Wrap" Text="{Binding ConnectionStatusText, FallbackValue='Сервер онлайн'}" VerticalAlignment="Top" Width="111.965" Foreground="{Binding StatusColor, Converter={StaticResource StringToColorBrush}}" FontFamily="Segoe UI Black"/>
             </Grid>
             <ComboBox x:Name="language" HorizontalAlignment="Right" Margin="0,0,80,0" IsEditable="False" FontSize="13" Foreground="#000EEC2D" Height="24" Width="45" SelectionChanged="LanguageSelectionChanged">
                 <ComboBox.ItemContainerStyle>
@@ -56,34 +57,34 @@
             </Button>
         </Grid>
         <Grid x:Name="Body" HorizontalAlignment="Left" Height="275" Margin="0,51,0,0" VerticalAlignment="Top" Width="700">
-            <TextBlock x:Name="news_label" HorizontalAlignment="Left" Height="27" Margin="27,11,0,0" TextWrapping="Wrap" Text="{local:Loc Key=news}" VerticalAlignment="Top" Width="138.965" Foreground="White" FontSize="18"/>
+            <TextBlock x:Name="news_label" HorizontalAlignment="Left" Height="27" Margin="27,11,0,0" TextWrapping="Wrap" Text="{local:Loc Key=news}" VerticalAlignment="Top" Width="138.965" Foreground="White" FontSize="18" Visibility="{Binding NewsSectionVisible, Converter={StaticResource BoolToVisibility}}"/>
             <Grid x:Name="News_Section" Margin="10,50,411,23">
-                <Grid x:Name="news1" Style="{StaticResource ScaleBlock}" HorizontalAlignment="Left" Height="62"  VerticalAlignment="Top" Width="269" MouseDown="News1_MouseDown">
+                <Grid x:Name="news1" Style="{StaticResource ScaleBlock}" HorizontalAlignment="Left" Height="62"  VerticalAlignment="Top" Width="269" MouseDown="News1_MouseDown" Visibility="{Binding News1Visible, Converter={StaticResource BoolToVisibility}}">
                     <Grid.Background>
                         <ImageBrush ImageSource="images\Block2.png"/>
                     </Grid.Background>
-                    <TextBlock x:Name="news_head_1" HorizontalAlignment="Left" Height="22" Margin="11,7,0,0" TextWrapping="Wrap"  VerticalAlignment="Top" Width="237" Foreground="#FFC5E9F8" FontSize="14" />
-                    <TextBlock x:Name="news_author_1" HorizontalAlignment="Left" Height="22" Margin="11,32,0,0" TextWrapping="Wrap"  VerticalAlignment="Top" Width="237" Foreground="#FFC5E9F8" FontSize="15" />
-                    <Control x:Name="news_loader_1" Style="{StaticResource BusyAnimationStyle}" Margin="97.175,2,111.824,0" Width="60" Height="60"/>
+                    <TextBlock x:Name="news_head_1" HorizontalAlignment="Left" Height="22" Margin="11,7,0,0" TextWrapping="Wrap" Text="{Binding News1Head}" VerticalAlignment="Top" Width="237" Foreground="#FFC5E9F8" FontSize="14" />
+                    <TextBlock x:Name="news_author_1" HorizontalAlignment="Left" Height="22" Margin="11,32,0,0" TextWrapping="Wrap" Text="{Binding News1Author}" VerticalAlignment="Top" Width="237" Foreground="#FFC5E9F8" FontSize="15" />
+                    <Control x:Name="news_loader_1" Style="{StaticResource BusyAnimationStyle}" Margin="97.175,2,111.824,0" Width="60" Height="60" Visibility="{Binding News1LoaderVisible, Converter={StaticResource BoolToVisibility}}"/>
                 </Grid>
-                <Grid x:Name="news2" Style="{StaticResource ScaleBlock}" HorizontalAlignment="Left" Height="62" Margin="0,67,0,0"  VerticalAlignment="Top" Width="269" MouseDown="News2_MouseDown">
+                <Grid x:Name="news2" Style="{StaticResource ScaleBlock}" HorizontalAlignment="Left" Height="62" Margin="0,67,0,0"  VerticalAlignment="Top" Width="269" MouseDown="News2_MouseDown" Visibility="{Binding News2Visible, Converter={StaticResource BoolToVisibility}}">
                     <Grid.Background>
                         <ImageBrush ImageSource="images\Block2.png"/>
                     </Grid.Background>
-                    <TextBlock x:Name="news_head_2" HorizontalAlignment="Left" Height="22" Margin="11,7,0,0" TextWrapping="Wrap"  VerticalAlignment="Top" Width="237" Foreground="#FFC5E9F8" FontSize="14" />
-                    <TextBlock x:Name="news_author_2" HorizontalAlignment="Left" Height="22" Margin="11,32,0,0" TextWrapping="Wrap"  VerticalAlignment="Top" Width="237" Foreground="#FFC5E9F8" FontSize="15"/>
-                    <Control x:Name="news_loader_2" Style="{StaticResource BusyAnimationStyle}" Margin="97.175,2,111.824,0" Width="60" Height="60"/>
+                    <TextBlock x:Name="news_head_2" HorizontalAlignment="Left" Height="22" Margin="11,7,0,0" TextWrapping="Wrap" Text="{Binding News2Head}" VerticalAlignment="Top" Width="237" Foreground="#FFC5E9F8" FontSize="14" />
+                    <TextBlock x:Name="news_author_2" HorizontalAlignment="Left" Height="22" Margin="11,32,0,0" TextWrapping="Wrap" Text="{Binding News2Author}" VerticalAlignment="Top" Width="237" Foreground="#FFC5E9F8" FontSize="15"/>
+                    <Control x:Name="news_loader_2" Style="{StaticResource BusyAnimationStyle}" Margin="97.175,2,111.824,0" Width="60" Height="60" Visibility="{Binding News2LoaderVisible, Converter={StaticResource BoolToVisibility}}"/>
                 </Grid>
-                <Grid x:Name="news3"  Style="{StaticResource ScaleBlock}" HorizontalAlignment="Left" Height="62" Margin="0,134,0,0"  VerticalAlignment="Top" Width="269" MouseDown="News3_MouseDown">
+                <Grid x:Name="news3"  Style="{StaticResource ScaleBlock}" HorizontalAlignment="Left" Height="62" Margin="0,134,0,0"  VerticalAlignment="Top" Width="269" MouseDown="News3_MouseDown" Visibility="{Binding News3Visible, Converter={StaticResource BoolToVisibility}}">
                     <Grid.Background>
                         <ImageBrush ImageSource="images\Block2.png"/>
                     </Grid.Background>
-                    <TextBlock x:Name="news_head_3" HorizontalAlignment="Left" Height="22" Margin="11,7,0,0" TextWrapping="Wrap"  VerticalAlignment="Top" Width="237" Foreground="#FFC5E9F8" FontSize="14" />
-                    <TextBlock x:Name="news_author_3" HorizontalAlignment="Left" Height="22" Margin="11,32,0,0" TextWrapping="Wrap"  VerticalAlignment="Top" Width="237" Foreground="#FFC5E9F8" FontSize="15" />
-                    <Control x:Name="news_loader_3" Style="{StaticResource BusyAnimationStyle}" Margin="97.175,2,111.824,0" Width="60" Height="60"/>
+                    <TextBlock x:Name="news_head_3" HorizontalAlignment="Left" Height="22" Margin="11,7,0,0" TextWrapping="Wrap" Text="{Binding News3Head}" VerticalAlignment="Top" Width="237" Foreground="#FFC5E9F8" FontSize="14" />
+                    <TextBlock x:Name="news_author_3" HorizontalAlignment="Left" Height="22" Margin="11,32,0,0" TextWrapping="Wrap" Text="{Binding News3Author}" VerticalAlignment="Top" Width="237" Foreground="#FFC5E9F8" FontSize="15" />
+                    <Control x:Name="news_loader_3" Style="{StaticResource BusyAnimationStyle}" Margin="97.175,2,111.824,0" Width="60" Height="60" Visibility="{Binding News3LoaderVisible, Converter={StaticResource BoolToVisibility}}"/>
                 </Grid>
             </Grid>
-            <Grid x:Name="LoginBlock" Margin="475.5,40,13.5,38" HorizontalAlignment="Center" Width="211" VerticalAlignment="Center" d:IsHidden="True">
+            <Grid x:Name="LoginBlock" Margin="475.5,40,13.5,38" HorizontalAlignment="Center" Width="211" VerticalAlignment="Center" IsEnabled="{Binding IsLoginBlockEnabled}">
                 <Grid.Style>
                     <Style>
                         <Style.Triggers>
@@ -123,7 +124,7 @@
                 <TextBlock x:Name="auth_lable" HorizontalAlignment="Left" Height="27" Margin="45,11,0,0" TextWrapping="Wrap" Text="{local:Loc Key=auth}" VerticalAlignment="Top" Width="114.965" Foreground="White" FontSize="18"/>
                 <PasswordBox x:Name="password_input" HorizontalAlignment="Left" Margin="10,86,0,0" VerticalAlignment="Top" Width="191" Height="24" FontSize="13" Foreground="#FF1EDA0B" />
                 <CheckBox x:Name="save_checkbox" Content="{local:Loc Key=save_checkbox}" HorizontalAlignment="Left" Margin="9,116,0,0" VerticalAlignment="Top" Width="123.5" Background="#660C122E" BorderBrush="#FF23436C" Height="17.098" Foreground="White"/>
-                <Button x:Name="play_btn" Style="{StaticResource PlayButton}" Content="" HorizontalAlignment="Left" Height="42.545" Margin="10,139.098,0,-7.643" VerticalAlignment="Top" Width="191" Click="Play_btn_Click" IsEnabled="False">
+                <Button x:Name="play_btn" Style="{StaticResource PlayButton}" Content="" HorizontalAlignment="Left" Height="42.545" Margin="10,139.098,0,-7.643" VerticalAlignment="Top" Width="191" Click="Play_btn_Click" IsEnabled="{Binding IsLoginEnabled, FallbackValue=False}">
                     <Button.Background>
                         <ImageBrush ImageSource="images\play.png"/>
                     </Button.Background>
@@ -153,8 +154,8 @@
                     </Button.Background>
                 </Button>
             </Grid>
-            <TextBlock x:Name="menu_stat_btn" HorizontalAlignment="Left" Height="27" Margin="470,-42,0,0" TextWrapping="Wrap" Text="{local:Loc Key=stat}" VerticalAlignment="Top"  Width="95.543" Foreground="#FFC5E9F8" FontSize="18" MouseDown="Menu_stat_btn_MouseDown"/>
-            <Grid x:Name="StatBlock" Margin="475.5,40,13.5,38" HorizontalAlignment="Center" Width="211" IsEnabled="False">
+            <TextBlock x:Name="menu_stat_btn" HorizontalAlignment="Left" Height="27" Margin="470,-42,0,0" TextWrapping="Wrap" Text="{local:Loc Key=stat}" VerticalAlignment="Top"  Width="95.543" Foreground="#FFC5E9F8" FontSize="18" MouseDown="Menu_stat_btn_MouseDown" IsEnabled="{Binding IsStatMenuEnabled}" TextDecorations="{Binding IsStatMenuUnderlined, Converter={StaticResource BoolToUnderline}}"/>
+            <Grid x:Name="StatBlock" Margin="475.5,40,13.5,38" HorizontalAlignment="Center" Width="211" IsEnabled="{Binding IsStatBlockEnabled}">
                 <Grid.Style>
                     <Style>
                         <Style.Triggers>
@@ -190,22 +191,22 @@
                     </Rectangle.Fill>
                 </Rectangle>
                 <TextBlock HorizontalAlignment="Left" Height="27" Margin="45,11,0,0" TextWrapping="Wrap" Text="{local:Loc Key=chip_war_statistics}" VerticalAlignment="Top"  Width="125.965" Foreground="#FFC5E9F8" FontSize="18"/>
-                <TextBlock x:Name="label_win_race" HorizontalAlignment="Left" Height="27" Margin="10,38,0,0" TextWrapping="Wrap"  Text="{local:Loc Key=win_race}" VerticalAlignment="Top" Width="191" Foreground="White" FontSize="14"/>
-                <TextBlock x:Name="label_ore_percent" HorizontalAlignment="Left" Height="27" Margin="10,61,0,0" TextWrapping="Wrap" Text="{local:Loc Key=ore_percent}" VerticalAlignment="Top" Width="191" Foreground="White" FontSize="14"/>
+                <TextBlock x:Name="label_win_race" HorizontalAlignment="Left" Height="27" Margin="10,38,0,0" TextWrapping="Wrap" Text="{Binding WinRaceText}" VerticalAlignment="Top" Width="191" Foreground="White" FontSize="14"/>
+                <TextBlock x:Name="label_ore_percent" HorizontalAlignment="Left" Height="27" Margin="10,61,0,0" TextWrapping="Wrap" Text="{Binding OrePercentText}" VerticalAlignment="Top" Width="191" Foreground="White" FontSize="14"/>
                 <TextBlock HorizontalAlignment="Left" Height="27" Margin="59,87,0,0" TextWrapping="Wrap" Text="{local:Loc Key=time_to_chip_war}" VerticalAlignment="Top" Width="89.965" Foreground="#FFC5E9F8" FontSize="14"/>
-                <TextBlock x:Name="chip_war_time_1" HorizontalAlignment="Left" Height="21" Margin="15,115,0,0" TextWrapping="Wrap" Text="6:00" VerticalAlignment="Top" Width="63.965" Foreground="White" FontSize="14"/>
-                <TextBlock x:Name="chip_war_time_2" HorizontalAlignment="Left" Height="21" Margin="78.965,115,0,0" TextWrapping="Wrap" Text="14:00" VerticalAlignment="Top" Width="68.965" Foreground="White" FontSize="14"/>
-                <TextBlock x:Name="chip_war_time_3" HorizontalAlignment="Left" Height="21" Margin="141.93,115,0,0" TextWrapping="Wrap" Text="22:00" VerticalAlignment="Top" Width="64.965" Foreground="White" FontSize="14"/>
+                <TextBlock x:Name="chip_war_time_1" HorizontalAlignment="Left" Height="21" Margin="15,115,0,0" TextWrapping="Wrap" Text="{Binding ChipWarTime1, FallbackValue='6:00'}" VerticalAlignment="Top" Width="63.965" Foreground="White" FontSize="14"/>
+                <TextBlock x:Name="chip_war_time_2" HorizontalAlignment="Left" Height="21" Margin="78.965,115,0,0" TextWrapping="Wrap" Text="{Binding ChipWarTime2, FallbackValue='14:00'}" VerticalAlignment="Top" Width="68.965" Foreground="White" FontSize="14"/>
+                <TextBlock x:Name="chip_war_time_3" HorizontalAlignment="Left" Height="21" Margin="141.93,115,0,0" TextWrapping="Wrap" Text="{Binding ChipWarTime3, FallbackValue='22:00'}" VerticalAlignment="Top" Width="64.965" Foreground="White" FontSize="14"/>
                 <TextBlock HorizontalAlignment="Left" Height="27" Margin="21,139,0,0" TextWrapping="Wrap" Text="{local:Loc Key=current_chip_percents}" VerticalAlignment="Top" Width="173" Foreground="#FFC5E9F8" FontSize="14"/>
-                <TextBlock x:Name="acc_percent" HorizontalAlignment="Left" Height="21" Margin="12,164,0,0" TextWrapping="Wrap" Text="ACC-100%" VerticalAlignment="Top" Width="67.965" Foreground="White"/>
-                <TextBlock x:Name="bcc_percent" HorizontalAlignment="Left" Height="21" Margin="76.965,164,0,0" TextWrapping="Wrap" Text="BCC-100%" VerticalAlignment="Top" Width="67.965" Foreground="White"/>
-                <TextBlock x:Name="ccc_percent" HorizontalAlignment="Left" Height="21" Margin="141.93,164,0,0" TextWrapping="Wrap" Text="CCC-100%" VerticalAlignment="Top" Width="67.965" Foreground="White"/>
+                <TextBlock x:Name="acc_percent" HorizontalAlignment="Left" Height="21" Margin="12,164,0,0" TextWrapping="Wrap" Text="{Binding AccPercentText, FallbackValue='ACC-100%'}" VerticalAlignment="Top" Width="67.965" Foreground="White"/>
+                <TextBlock x:Name="bcc_percent" HorizontalAlignment="Left" Height="21" Margin="76.965,164,0,0" TextWrapping="Wrap" Text="{Binding BccPercentText, FallbackValue='BCC-100%'}" VerticalAlignment="Top" Width="67.965" Foreground="White"/>
+                <TextBlock x:Name="ccc_percent" HorizontalAlignment="Left" Height="21" Margin="141.93,164,0,0" TextWrapping="Wrap" Text="{Binding CccPercentText, FallbackValue='CCC-100%'}" VerticalAlignment="Top" Width="67.965" Foreground="White"/>
 
             </Grid>
-            <TextBlock x:Name="menu_login_btn" HorizontalAlignment="Left" Height="27" Margin="420,-42,0,0" TextWrapping="Wrap" Text="{local:Loc Key=login_box}" VerticalAlignment="Top"  Width="44" Foreground="#FFC5E9F8" FontSize="18" TextDecorations="Underline" MouseDown="Menu_login_btn_MouseDown"/>
+            <TextBlock x:Name="menu_login_btn" HorizontalAlignment="Left" Height="27" Margin="420,-42,0,0" TextWrapping="Wrap" Text="{local:Loc Key=login_box}" VerticalAlignment="Top"  Width="44" Foreground="#FFC5E9F8" FontSize="18" TextDecorations="{Binding IsLoginMenuUnderlined, Converter={StaticResource BoolToUnderline}}" MouseDown="Menu_login_btn_MouseDown"/>
         </Grid>
         <Grid x:Name="Bottom" Margin="0,340
-              ,0,0">
+              ,0,0" Visibility="{Binding IsUpdateVisible, Converter={StaticResource BoolToVisibility}}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="15*"/>
                 <ColumnDefinition Width="20*"/>
@@ -217,11 +218,11 @@
                     <ImageBrush ImageSource="images\Load.png"/>
                 </Rectangle.Fill>
             </Rectangle>
-            <TextBlock x:Name="check_label" HorizontalAlignment="Left" Margin="4.833,-31.5,0,0" TextWrapping="Wrap" Text="Проверка: (0/0)" VerticalAlignment="Top" Foreground="#FF0EB9F9" FontWeight="Bold" Grid.ColumnSpan="4" FontSize="10"/>
-            <ProgressBar Style="{StaticResource BlueProgressBar}" x:Name="proggres_check" HorizontalAlignment="Left" Height="8" VerticalAlignment="Top" Width="700" Grid.ColumnSpan="4" Value="100" Margin="0,1.334,0,0" />
-            <ProgressBar Style="{StaticResource GreenProgressBar}" x:Name="proggres_apply" HorizontalAlignment="Left" Height="8" VerticalAlignment="Top" Width="700"  Grid.ColumnSpan="4" Margin="0,11.667,0,0" Value="100">
+            <TextBlock x:Name="check_label" HorizontalAlignment="Left" Margin="4.833,-31.5,0,0" TextWrapping="Wrap" Text="{Binding CheckProgressText, FallbackValue='Проверка: (0/0)'}" VerticalAlignment="Top" Foreground="#FF0EB9F9" FontWeight="Bold" Grid.ColumnSpan="4" FontSize="10"/>
+            <ProgressBar Style="{StaticResource BlueProgressBar}" x:Name="proggres_check" HorizontalAlignment="Left" Height="8" VerticalAlignment="Top" Width="700" Grid.ColumnSpan="4" Value="{Binding CheckProgressValue, FallbackValue=100}" Maximum="{Binding CheckProgressMax, FallbackValue=100}" Margin="0,1.334,0,0" />
+            <ProgressBar Style="{StaticResource GreenProgressBar}" x:Name="proggres_apply" HorizontalAlignment="Left" Height="8" VerticalAlignment="Top" Width="700"  Grid.ColumnSpan="4" Margin="0,11.667,0,0" Value="{Binding ApplyProgressValue, FallbackValue=100}" Maximum="{Binding ApplyProgressMax, FallbackValue=100}">
             </ProgressBar>
-            <TextBlock x:Name="apply_label" HorizontalAlignment="Left" Margin="4.833,-18.3,0,0" TextWrapping="Wrap" Text="Применение (0/0)" VerticalAlignment="Top" Foreground="#FF0EF90E" FontWeight="Bold" FontSize="10" Grid.ColumnSpan="4"/>
+            <TextBlock x:Name="apply_label" HorizontalAlignment="Left" Margin="4.833,-18.3,0,0" TextWrapping="Wrap" Text="{Binding ApplyProgressText, FallbackValue='Применение (0/0)'}" VerticalAlignment="Top" Foreground="#FF0EF90E" FontWeight="Bold" FontSize="10" Grid.ColumnSpan="4"/>
         </Grid>
     </Grid>
 </Window>

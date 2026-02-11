@@ -89,8 +89,23 @@
     </ApplicationDefinition>
     <Compile Include="Extensions\LocExtension.cs" />
     <Compile Include="Helper\NationCodeHelper.cs" />
+    <Compile Include="Core\ViewModelBase.cs" />
+    <Compile Include="Core\RelayCommand.cs" />
+    <Compile Include="Core\BoolToVisibilityConverter.cs" />
+    <Compile Include="Core\ServiceLocator.cs" />
     <Compile Include="Services\ContentService.cs" />
+    <Compile Include="Services\DialogService.cs" />
+    <Compile Include="Services\GameService.cs" />
+    <Compile Include="Services\NavigationService.cs" />
+    <Compile Include="Services\SettingsService.cs" />
     <Compile Include="Services\LauncherUpdateService.cs" />
+    <Compile Include="Services\Interfaces\IContentService.cs" />
+    <Compile Include="Services\Interfaces\IDialogService.cs" />
+    <Compile Include="Services\Interfaces\IGameService.cs" />
+    <Compile Include="Services\Interfaces\INavigationService.cs" />
+    <Compile Include="Services\Interfaces\ISettingsService.cs" />
+    <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="Views\Settings\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>

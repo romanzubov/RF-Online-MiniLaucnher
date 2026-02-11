@@ -4,9 +4,12 @@ using MiniLauncher.Network;
 using MiniLauncher.Network.Packets;
 using MiniLauncher.Updater;
 using MiniLauncher.Utils;
+using MiniLauncherStyle.Core;
 using MiniLauncherStyle.Data;
 using MiniLauncherStyle.Helper;
 using MiniLauncherStyle.Services;
+using MiniLauncherStyle.Services.Interfaces;
+using MiniLauncherStyle.ViewModels;
 using MiniLauncherStyle.Views.Settings;
 using System;
 using System.Collections.Generic;
@@ -35,29 +38,54 @@ namespace MiniLauncherStyle
 
         private UpdateManager UpdateManager { get; set; }
         private List<NewsItem> newsList;
+        
+        private MainViewModel ViewModel { get; set; }
+        
+        // Сервисы
+        private readonly IDialogService _dialogService;
+        private readonly INavigationService _navigationService;
+        private readonly IGameService _gameService;
 
         public MainWindow()
         {
             connectionStatus = false;
             Lm = LocalizationManager.GetInstance;
+            
+            // Получение сервисов из DI контейнера
+            var contentService = ServiceLocator.Current.Get<IContentService>();
+            _dialogService = ServiceLocator.Current.Get<IDialogService>();
+            _navigationService = ServiceLocator.Current.Get<INavigationService>();
+            _gameService = ServiceLocator.Current.Get<IGameService>();
+            
+            // Создание ViewModel
+            ViewModel = new MainViewModel(contentService, _dialogService);
+            
             InitializeComponent();
+            
+            // Установка DataContext для bindings
+            DataContext = ViewModel;
+            
+            // Устанавливаем ссылку на главное окно в NavigationService
+            _navigationService.SetMainWindow(this);
+            
             InitializeNetwork();
-            Title = LauncherConfig.GetInstance.ServerConfig.Title;
         }
 
         private void InitializeNetwork()
         {
-            status_label.Text = Lm.GetString("StatusConnecting");
-            status_label.Foreground = new SolidColorBrush(Colors.Orange);
+            ViewModel.ConnectionStatusText = Lm.GetString("StatusConnecting");
+            ViewModel.StatusColor = "Orange";
 
             var serverCfg = LauncherConfig.GetInstance.ServerConfig;
             networkClient = new NetworkClient(serverCfg.LogginAddress.Split(':')[0], int.Parse(serverCfg.LogginAddress.Split(':')[1]));
             networkClient.OnError += NetworkClient_OnError;
             networkClient.OnConnected += NetworkClient_OnConnected;
             networkClient.ClientEvents += NetworkClient_ClientEvents;
-            (new Thread(() => {
-                networkClient.StartClient();
-            })).Start();
+            
+            // Используем BackgroundWorker вместо raw Thread
+            var worker = new System.ComponentModel.BackgroundWorker();
+            worker.DoWork += (sender, e) => networkClient.StartClient();
+            worker.RunWorkerAsync();
         }
         private void NetworkClient_OnError(object sender, EventArgs e)
         {
@@ -89,28 +117,23 @@ namespace MiniLauncherStyle
                     break;
                 case NetworkClientEventArgs.Callback.LOGIN_ACCOUNT_WRONG_LOGIN:
                     EnableLoginBtn(true);
-                    System.Windows.MessageBox.Show(Lm.GetString("WrongLogin"),
-                        Lm.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                    _dialogService.ShowError(Lm.GetString("WrongLogin"), Lm.GetString("Error"));
                     break;
                 case NetworkClientEventArgs.Callback.LOGIN_ACCOUNT_WRONG_PW:
                     EnableLoginBtn(true);
-                    System.Windows.MessageBox.Show(Lm.GetString("WrongPassword"),
-                        Lm.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                    _dialogService.ShowError(Lm.GetString("WrongPassword"), Lm.GetString("Error"));
                     break;
                 case NetworkClientEventArgs.Callback.LOGIN_ACCOUNT_SERVER_CLOSED:
                     EnableLoginBtn(true);
-                    System.Windows.MessageBox.Show(Lm.GetString("ServerTechnicalWork"),
-                        Lm.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                    _dialogService.ShowError(Lm.GetString("ServerTechnicalWork"), Lm.GetString("Error"));
                     break;
                 case NetworkClientEventArgs.Callback.LOGIN_ACCOUNT_BANNED:
-                    System.Windows.MessageBox.Show(Lm.GetString("AccountBlocked"),
-                        Lm.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                    _dialogService.ShowError(Lm.GetString("AccountBlocked"), Lm.GetString("Error"));
                     break;
                 case NetworkClientEventArgs.Callback.LOGIN_ACCOUNT_ALREADY_IN_GAME:
                     networkClient.StopListen(false);
-                    System.Windows.MessageBox.Show("Аккаунт уже в игре!",
-                        Lm.GetString("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
-                    Environment.Exit(0);
+                    _dialogService.ShowError("Аккаунт уже в игре!", Lm.GetString("Error"));
+                    _navigationService.ExitApplication();
                     break;
                 case NetworkClientEventArgs.Callback.SERVER_LIST_INFORM:
                     Dispatcher.Invoke((MethodInvoker)delegate
@@ -151,14 +174,17 @@ namespace MiniLauncherStyle
 
         private void InitializeUpdater()
         {
-            Bottom.Visibility = Visibility.Visible;
+            ViewModel.IsUpdateVisible = true;
+            
             if (!LauncherConfig.GetInstance.UpdateConfig.ClientUpdateEnable && !LauncherConfig.GetInstance.UpdateConfig.PatchUpdateEnable)
             {
-                Bottom.Visibility = Visibility.Hidden;
+                ViewModel.IsUpdateVisible = false;
                 return;
             }
-            check_label.Text = String.Format(Lm.GetString("update_check_label"), 0, 0);
-            apply_label.Text = String.Format(Lm.GetString("update_apply_label"), 0, 0);
+            
+            // Инициализация прогресса через ViewModel
+            ViewModel.CheckProgressText = String.Format(Lm.GetString("update_check_label"), 0, 0);
+            ViewModel.ApplyProgressText = String.Format(Lm.GetString("update_apply_label"), 0, 0);
 
             Queue<UpdateTask> updateTasks = new Queue<UpdateTask>();
             if (!File.Exists($".//{LauncherConfig.GetInstance.ServerConfig.Title}.lock") && LauncherConfig.GetInstance.UpdateConfig.ClientUpdateEnable)
@@ -203,9 +229,10 @@ namespace MiniLauncherStyle
             }
             Bottom.Dispatcher.Invoke(new MethodInvoker(delegate
             {
-                proggres_apply.Maximum = 100;
-                proggres_apply.Value = 100;
-                apply_label.Text = Lm.GetString("update_apply_label_done");
+                // Обновляем через ViewModel
+                ViewModel.ApplyProgressMax = 100;
+                ViewModel.ApplyProgressValue = 100;
+                ViewModel.ApplyProgressText = Lm.GetString("update_apply_label_done");
                 if (connectionStatus)
                 {
                     EnableLoginBtn(true);
@@ -222,9 +249,8 @@ namespace MiniLauncherStyle
 
             Bottom.Dispatcher.Invoke(new MethodInvoker(delegate
             {
-                proggres_check.Maximum = (int)e.TotalCount;
-                proggres_check.Value = (int)e.DoneCount;
-                check_label.Text = String.Format(Lm.GetString("update_check_label"),e.DoneCount, e.TotalCount);
+                // Обновляем через ViewModel
+                ViewModel.UpdateCheckProgress(e.DoneCount, e.TotalCount);
             }));
         }
 
@@ -232,36 +258,23 @@ namespace MiniLauncherStyle
         {
             Bottom.Dispatcher.Invoke(new MethodInvoker(delegate
             {
-                proggres_apply.Maximum = (int)e.TotalCount;
-                proggres_apply.Value = (int)e.DoneCount;
-                apply_label.Text = String.Format(Lm.GetString("update_apply_label"), e.DoneCount, e.TotalCount);
+                // Обновляем через ViewModel
+                ViewModel.UpdateApplyProgress(e.DoneCount, e.TotalCount);
             }));
         }
 
         private void RunGame(Default_Set defaultSet)
         {
-            var clientCfg = LauncherConfig.GetInstance.ClientConfig;
-            ClientRunHelper.WriteTmp(clientCfg.DefaultSetTmpPath, defaultSet);
-            ClientRunHelper.RunClient(clientCfg.ClientBinaryPath);
+            // Запуск клиента через сервис
+            _gameService.RunGameClient(defaultSet);
 
-            bool is_need_to_close = false;
-            if (File.Exists(".\\R3Engine.ini"))
-            {
-                var ini = new IniFile(".\\R3Engine.ini");
-                if (ini.KeyExists("close_launcher_after_login", "Launcher"))
-                {
-                    is_need_to_close = bool.Parse(ini.ReadReverse("Launcher", "close_launcher_after_login").ToLower());
-                }
-                else
-                {
-                    ini.Write("close_launcher_after_login", "FALSE", "Launcher");
-                }
-            }
             EnableLoginBtn(true);
-            if (is_need_to_close)
+            
+            // Проверяем, нужно ли закрыть лаунчер
+            if (_gameService.ShouldCloseLauncherAfterLogin())
             {
                 networkClient.StopListen();
-                Environment.Exit(0);
+                _navigationService.ExitApplication();
             }
         }
 
@@ -276,26 +289,21 @@ namespace MiniLauncherStyle
         {
             connectionStatus = ok;
             Dispatcher.Invoke((MethodInvoker)delegate {
-                status_label.Text = ok ? Lm.GetString("StatusConnected") : Lm.GetString("StatusDisconected");
-                if (ok)
-                {
-                    status_on.Visibility = Visibility.Visible;
-                    status_off.Visibility = Visibility.Hidden;
-                    status_label.Foreground = new SolidColorBrush(Colors.Green);
-                }
-                else
-                {
-                    status_off.Visibility = Visibility.Visible;
-                    status_on.Visibility = Visibility.Hidden;
-                    status_label.Foreground = new SolidColorBrush(Colors.Red);
-                }
-                play_btn.IsEnabled = ok;
+                // Обновляем ViewModel
+                ViewModel.IsConnected = ok;
+                ViewModel.ConnectionStatusText = ok ? Lm.GetString("StatusConnected") : Lm.GetString("StatusDisconected");
+                ViewModel.IsLoginEnabled = ok;
+                
+                // Обновляем статус-иконки через ViewModel
+                ViewModel.StatusOnVisible = ok;
+                ViewModel.StatusOffVisible = !ok;
+                ViewModel.StatusColor = ok ? "Green" : "Red";
             });
         }
         private void EnableLoginBtn(bool state)
         {
             Dispatcher.Invoke((MethodInvoker)delegate {
-                play_btn.IsEnabled = state;
+                ViewModel.IsLoginEnabled = state;
             });
         }
 
@@ -415,9 +423,9 @@ namespace MiniLauncherStyle
             TimeSpan TimeRemaining = voteTime - today;
             TimeSpan TimeRemaining1 = voteTime2 - today;
             TimeSpan TimeRemaining2  = voteTime3 - today;
-            chip_war_time_1.Text =  string.Format("{0:D2}:{1:D2}:{2:D2} |", TimeRemaining.Hours, TimeRemaining.Minutes, TimeRemaining.Seconds);
-            chip_war_time_2.Text = string.Format("{0:D2}:{1:D2}:{2:D2} |", TimeRemaining1.Hours, TimeRemaining1.Minutes, TimeRemaining1.Seconds);
-            chip_war_time_3.Text = string.Format("{0:D2}:{1:D2}:{2:D2}", TimeRemaining2.Hours, TimeRemaining2.Minutes, TimeRemaining2.Seconds);
+            ViewModel.ChipWarTime1 = string.Format("{0:D2}:{1:D2}:{2:D2} |", TimeRemaining.Hours, TimeRemaining.Minutes, TimeRemaining.Seconds);
+            ViewModel.ChipWarTime2 = string.Format("{0:D2}:{1:D2}:{2:D2} |", TimeRemaining1.Hours, TimeRemaining1.Minutes, TimeRemaining1.Seconds);
+            ViewModel.ChipWarTime3 = string.Format("{0:D2}:{1:D2}:{2:D2}", TimeRemaining2.Hours, TimeRemaining2.Minutes, TimeRemaining2.Seconds);
         }
 
         private void LoadStat()
@@ -427,13 +435,16 @@ namespace MiniLauncherStyle
             if (result.Success)
             {
                 var statData = result.Data;
+                // Сохраняем в ViewModel
+                ViewModel.Statistics = statData;
+                
                 Dispatcher.Invoke((MethodInvoker)delegate
                 {
-                    label_win_race.Text = String.Format(Lm.GetString("win_race"), statData.DestroyedRace);
-                    label_ore_percent.Text = String.Format(Lm.GetString("ore_percent"), statData.OrePercent);
-                    acc_percent.Text = String.Format(Lm.GetString("acc_chip_percent"), statData.AccPercent);
-                    bcc_percent.Text = String.Format(Lm.GetString("bcc_chip_percent"), statData.BccPercent);
-                    ccc_percent.Text = String.Format(Lm.GetString("ccc_chip_percent"), statData.CccPercent);
+                    ViewModel.WinRaceText = String.Format(Lm.GetString("win_race"), statData.DestroyedRace);
+                    ViewModel.OrePercentText = String.Format(Lm.GetString("ore_percent"), statData.OrePercent);
+                    ViewModel.AccPercentText = String.Format(Lm.GetString("acc_chip_percent"), statData.AccPercent);
+                    ViewModel.BccPercentText = String.Format(Lm.GetString("bcc_chip_percent"), statData.BccPercent);
+                    ViewModel.CccPercentText = String.Format(Lm.GetString("ccc_chip_percent"), statData.CccPercent);
                 });
             }
             else
@@ -446,19 +457,32 @@ namespace MiniLauncherStyle
         {
             Dispatcher.Invoke((MethodInvoker)delegate
             {
-                menu_stat_btn.TextDecorations = TextDecorations.Strikethrough;
-                menu_login_btn.TextDecorations = TextDecorations.Underline;
-                menu_stat_btn.IsEnabled = false;
-                StatBlock.IsEnabled = false;
-                LoginBlock.IsEnabled = true;
+                ViewModel.IsStatMenuEnabled = false;
+                ViewModel.IsStatMenuUnderlined = false;
+                ViewModel.IsLoginMenuUnderlined = true;
+                ViewModel.IsStatBlockEnabled = false;
+                ViewModel.IsLoginBlockEnabled = true;
             });
         }
 
         private void LoadNews()
         {
-            new Thread(() => {
+            var worker = new System.ComponentModel.BackgroundWorker();
+            worker.DoWork += (sender, e) => 
+            {
                 var result = ContentService.LoadNews();
+                e.Result = result;
+            };
+            worker.RunWorkerCompleted += (sender, e) =>
+            {
+                if (e.Error != null)
+                {
+                    HideNewsSection();
+                    DisableStatBlock();
+                    return;
+                }
                 
+                var result = (DataLoadResult<List<NewsItem>>)e.Result;
                 if (!result.Success)
                 {
                     HideNewsSection();
@@ -467,19 +491,25 @@ namespace MiniLauncherStyle
                 }
                 
                 newsList = result.Data;
+                ViewModel.NewsList = newsList;
                 DisplayNews(newsList);
-                LoadStat();
-            }).Start();
+                
+                // Загружаем статистику в отдельном BackgroundWorker
+                var statWorker = new System.ComponentModel.BackgroundWorker();
+                statWorker.DoWork += (s, args) => LoadStat();
+                statWorker.RunWorkerAsync();
+            };
+            worker.RunWorkerAsync();
         }
 
         private void HideNewsSection()
         {
             Dispatcher.Invoke((MethodInvoker)delegate 
             {
-                news_label.Visibility = Visibility.Hidden;
-                news1.Visibility = Visibility.Hidden;
-                news2.Visibility = Visibility.Hidden;
-                news3.Visibility = Visibility.Hidden;
+                ViewModel.NewsSectionVisible = false;
+                ViewModel.News1Visible = false;
+                ViewModel.News2Visible = false;
+                ViewModel.News3Visible = false;
             });
         }
 
@@ -489,27 +519,27 @@ namespace MiniLauncherStyle
             {
                 if (news.Count >= 1)
                 {
-                    news_loader_1.Visibility = Visibility.Hidden;
-                    news_head_1.Text = news[0].Text;
-                    news_author_1.Text = news[0].Author + " | " + news[0].DateTime;
+                    ViewModel.News1LoaderVisible = false;
+                    ViewModel.News1Head = news[0].Text;
+                    ViewModel.News1Author = news[0].Author + " | " + news[0].DateTime;
                 }
                 if (news.Count >= 2)
                 {
-                    news_loader_2.Visibility = Visibility.Hidden;
-                    news_head_2.Text = news[1].Text;
-                    news_author_2.Text = news[1].Author + " | " + news[1].DateTime;
+                    ViewModel.News2LoaderVisible = false;
+                    ViewModel.News2Head = news[1].Text;
+                    ViewModel.News2Author = news[1].Author + " | " + news[1].DateTime;
                 }
                 if (news.Count >= 3)
                 {
-                    news_loader_3.Visibility = Visibility.Hidden;
-                    news_head_3.Text = news[2].Text;
-                    news_author_3.Text = news[2].Author + " | " + news[2].DateTime;
+                    ViewModel.News3LoaderVisible = false;
+                    ViewModel.News3Head = news[2].Text;
+                    ViewModel.News3Author = news[2].Author + " | " + news[2].DateTime;
                 }
                 
-                // Скрыть неиспользуемые блоки
-                if (news.Count < 3) news3.Visibility = Visibility.Hidden;
-                if (news.Count < 2) news2.Visibility = Visibility.Hidden;
-                if (news.Count < 1) news1.Visibility = Visibility.Hidden;
+                // Скрыть неиспользуемые блоки через ViewModel
+                if (news.Count < 3) ViewModel.News3Visible = false;
+                if (news.Count < 2) ViewModel.News2Visible = false;
+                if (news.Count < 1) ViewModel.News1Visible = false;
             });
         }
 
@@ -522,24 +552,19 @@ namespace MiniLauncherStyle
         private void Exit_btn_Click(object sender, RoutedEventArgs e)
         {
             Close();
-            Environment.Exit(0);
+            _navigationService.ExitApplication();
         }
 
         private void Settings_btn_Click(object sender, RoutedEventArgs e)
         {
-            SettingsWindow settings = new SettingsWindow(Top, Left);
-            settings.Closing += Settings_Closing;
-            settings.Show();
-        }
-
-        private void Settings_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            var settings = (SettingsWindow)sender;
-            InitUserCredential();
-            if (settings.ClientUpdateRequired)
+            _navigationService.ShowSettings((clientUpdateRequired) =>
             {
-                InitializeUpdater();
-            }
+                InitUserCredential();
+                if (clientUpdateRequired)
+                {
+                    InitializeUpdater();
+                }
+            });
         }
 
         private void Login_input_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -564,15 +589,13 @@ namespace MiniLauncherStyle
 
             if (login_input.Text.Length > 13)
             {
-                System.Windows.Forms.MessageBox.Show(Lm.GetString("LoginPasswordCheck"),
-                    Lm.GetString("Error"));
+                _dialogService.ShowError(Lm.GetString("LoginPasswordCheck"), Lm.GetString("Error"));
                 return;
             }
 
             if (password_input.Password.Length > 13)
             {
-                System.Windows.Forms.MessageBox.Show(Lm.GetString("LoginPasswordCheck"),
-                    Lm.GetString("Error"));
+                _dialogService.ShowError(Lm.GetString("LoginPasswordCheck"), Lm.GetString("Error"));
                 return;
             }
             if (!string.IsNullOrEmpty(login_input.Text) && !string.IsNullOrEmpty(password_input.Password))
@@ -582,8 +605,7 @@ namespace MiniLauncherStyle
             }
             else
             {
-                System.Windows.Forms.MessageBox.Show(Lm.GetString("LoginPasswordCheck"),
-                    Lm.GetString("Error"));
+                _dialogService.ShowError(Lm.GetString("LoginPasswordCheck"), Lm.GetString("Error"));
             }
         }
         public static int Clamp(int value, int min, int max)
@@ -594,7 +616,7 @@ namespace MiniLauncherStyle
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             networkClient.StopListen(true);
-            Environment.Exit(0);
+            _navigationService.ExitApplication();
         }
 
         private void News1_MouseDown(object sender, MouseButtonEventArgs e)
@@ -603,7 +625,7 @@ namespace MiniLauncherStyle
             {
                 if (newsList != null && newsList.Count >= 1)
                 {
-                    Process.Start(newsList[0].Link);
+                    _dialogService.OpenUrl(newsList[0].Link);
                 }
             }
         }
@@ -614,7 +636,7 @@ namespace MiniLauncherStyle
             {
                 if (newsList != null && newsList.Count >= 2)
                 {
-                    Process.Start(newsList[1].Link);
+                    _dialogService.OpenUrl(newsList[1].Link);
                 }
             }
         }
@@ -625,7 +647,7 @@ namespace MiniLauncherStyle
             {
                 if (newsList != null && newsList.Count >= 3)
                 {
-                    Process.Start(newsList[2].Link);
+                    _dialogService.OpenUrl(newsList[2].Link);
                 }
             }
         }
@@ -634,48 +656,48 @@ namespace MiniLauncherStyle
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                LoginBlock.IsEnabled = true;
-                StatBlock.IsEnabled = false;
-                menu_login_btn.TextDecorations = TextDecorations.Underline;
-                menu_stat_btn.TextDecorations = null;
+                ViewModel.IsLoginBlockEnabled = true;
+                ViewModel.IsStatBlockEnabled = false;
+                ViewModel.IsLoginMenuUnderlined = true;
+                ViewModel.IsStatMenuUnderlined = false;
             }
         }
         private void Menu_stat_btn_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                LoginBlock.IsEnabled = false;
-                StatBlock.IsEnabled = true;
-                menu_login_btn.TextDecorations = null;
-                menu_stat_btn.TextDecorations = TextDecorations.Underline;
+                ViewModel.IsLoginBlockEnabled = false;
+                ViewModel.IsStatBlockEnabled = true;
+                ViewModel.IsLoginMenuUnderlined = false;
+                ViewModel.IsStatMenuUnderlined = true;
             }
         }
 
         private void Forum_btn_Click(object sender, RoutedEventArgs e)
         {
-            Process.Start(LauncherConfig.GetInstance.SocialConfig.forum_link);
+            _dialogService.OpenUrl(LauncherConfig.GetInstance.SocialConfig.forum_link);
         }
 
         private void Bd_btn_Click(object sender, RoutedEventArgs e)
         {
-            Process.Start(LauncherConfig.GetInstance.SocialConfig.bd_link);
+            _dialogService.OpenUrl(LauncherConfig.GetInstance.SocialConfig.bd_link);
         }
 
         private void Vk_btn_Click(object sender, RoutedEventArgs e)
         {
-            Process.Start(LauncherConfig.GetInstance.SocialConfig.vk_link);
+            _dialogService.OpenUrl(LauncherConfig.GetInstance.SocialConfig.vk_link);
         }
 
         private void Craft_btn_Click(object sender, RoutedEventArgs e)
         {
-            Process.Start(LauncherConfig.GetInstance.SocialConfig.craft_link);
+            _dialogService.OpenUrl(LauncherConfig.GetInstance.SocialConfig.craft_link);
         }
 
         private void TextBlock_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                Process.Start(LauncherConfig.GetInstance.SocialConfig.register_link);
+                _dialogService.OpenUrl(LauncherConfig.GetInstance.SocialConfig.register_link);
             }
         }
 

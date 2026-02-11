@@ -1,7 +1,10 @@
 ﻿using MiniLauncher.Data;
 using MiniLauncher.Helper;
 using MiniLauncher.Utils;
+using MiniLauncherStyle.Core;
 using MiniLauncherStyle.Data;
+using MiniLauncherStyle.Services.Interfaces;
+using MiniLauncherStyle.ViewModels;
 using System;
 using System.IO;
 using System.Management;
@@ -32,6 +35,8 @@ namespace MiniLauncherStyle.Views.Settings
 
         private readonly double initialX;
         private readonly double initialY;
+        
+        private SettingsViewModel ViewModel { get; set; }
 
         public SettingsWindow(double x, double y)
         {
@@ -40,7 +45,15 @@ namespace MiniLauncherStyle.Views.Settings
             ClientUpdateRequired = false;
             localization = LocalizationManager.GetInstance;
             
+            // Создание ViewModel с сервисами из DI контейнера
+            var dialogService = ServiceLocator.Current.Get<IDialogService>();
+            ViewModel = new SettingsViewModel(dialogService);
+            
             InitializeComponent();
+            
+            // Установка DataContext для bindings
+            DataContext = ViewModel;
+            
             InitLocalization();
             InitializeVideoAndResolution();
             
@@ -48,12 +61,25 @@ namespace MiniLauncherStyle.Views.Settings
             if (!config.IsDefault())
             {
                 InitializeFormFromConfig();
+                // Загружаем config в ViewModel
+                ViewModel.LoadConfig(config);
             }
 
             if (!LauncherConfig.GetInstance.UpdateConfig.ClientUpdateEnable)
             {
                 btn_repair_client.IsEnabled = false;
             }
+            
+            // Подписка на события ViewModel
+            ViewModel.CloseRequested += (s, e) => Close();
+            ViewModel.SaveRequested += (s, e) => SaveAndClose();
+        }
+
+        private void SaveAndClose()
+        {
+            SaveConfig(config);
+            ClientUpdateRequired = ViewModel.ClientUpdateRequired;
+            Close();
         }
 
         private void InitLocalization()
