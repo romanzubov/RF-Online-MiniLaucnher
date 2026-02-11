@@ -117,7 +117,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Data\News.cs" />
+    <Compile Include="Data\NewsItem.cs" />
     <Compile Include="Data\R3EngineSettings.cs" />
     <Compile Include="Data\Stat.cs" />
     <Compile Include="Helper\DragCanvas.cs" />
