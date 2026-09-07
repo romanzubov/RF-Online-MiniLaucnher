@@ -87,6 +87,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Data\GatewayItem.cs" />
     <Compile Include="Extensions\LocExtension.cs" />
     <Compile Include="Helper\NationCodeHelper.cs" />
     <Compile Include="Core\ViewModelBase.cs" />
@@ -96,6 +97,8 @@
     <Compile Include="Services\ContentService.cs" />
     <Compile Include="Services\DialogService.cs" />
     <Compile Include="Services\GameService.cs" />
+    <Compile Include="Services\GatewayService.cs" />
+    <Compile Include="Services\Interfaces\IGatewayService.cs" />
     <Compile Include="Services\NavigationService.cs" />
     <Compile Include="Services\SettingsService.cs" />
     <Compile Include="Services\LauncherUpdateService.cs" />
@@ -256,6 +259,9 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Views\Main\images\play_without_text.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -176,6 +176,18 @@
                            Foreground="{Binding StatusColor, Converter={StaticResource StringToColorBrush}}"/>
             </Grid>
 
+            <!-- Выбор гейтвея -->
+            <ComboBox x:Name="gateways"
+                      Height="24" Width="160"
+                      HorizontalAlignment="Right"
+                      Margin="0,0,140,0"
+                      IsEditable="True"
+                      IsReadOnly="True"
+                      FontSize="13"
+                      Foreground="#000EEC2D"
+                      SelectionChanged="GatewaySelectionChanged">
+            </ComboBox>
+
             <!-- Выбор языка -->
             <ComboBox x:Name="language"
                       Height="24" Width="45"
@@ -351,8 +363,14 @@
                         IsEnabled="{Binding IsLoginEnabled, FallbackValue=False}"
                         Click="Play_btn_Click">
                     <Button.Background>
-                        <ImageBrush ImageSource="images\play.png"/>
+                        <ImageBrush ImageSource="images\play_without_text.png"/>
                     </Button.Background>
+                    <TextBlock Text="{local:Loc Key=play_btn}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Foreground="{StaticResource TextWhite}"
+                               FontSize="16"
+                               FontWeight="Bold"/>
                 </Button>
 
                 <!-- Ссылка на регистрацию -->

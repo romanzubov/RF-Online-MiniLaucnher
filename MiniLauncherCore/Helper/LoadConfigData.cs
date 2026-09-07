@@ -46,6 +46,20 @@ namespace MiniLauncher.Helper
                 data.ServerConfig.Title = iniParser.Read("Title", "Server");
                 data.ServerConfig.LogginAddress = iniParser.Read("LogginAddress", "Server");
                 data.ServerConfig.ServerAddress = iniParser.Read("ServerAddress", "Server");
+
+                var gatewayCount = Convert.ToInt32(iniParser.Read("Gateways_Count", "Server") ?? "0");
+                data.ServerConfig.Gateways = new List<GatewaySetting>(gatewayCount);
+                for (int i = 0; i < gatewayCount; i++)
+                {
+                    var gateway = new GatewaySetting()
+                    {
+                        GatewayKey = iniParser.Read($"GatewayKey_{i}", "Server"),
+                        GatewayTittle = iniParser.Read($"GatewayTitle_{i}", "Server"),
+                        GatewayAddress = iniParser.Read($"GatewayAddress_{i}", "Server")
+                    };
+                    data.ServerConfig.Gateways.Add(gateway);
+                }
+
                 data.ServerConfig.OverrideServerAddress = iniParser.Read("OverrideServerAddress", "Server").ToLower() == "true" ? true : false;
                 data.ServerConfig.OverrideServerSelection = iniParser.Read("OverrideServerSelection", "Server").ToLower() == "true" ? true : false;
                 data.ServerConfig.ServerIndexSelect = int.Parse(iniParser.Read("ServerIndexSelect", "Server"));
@@ -62,7 +76,6 @@ namespace MiniLauncher.Helper
                 data.UpdateConfig.UpdateServerClient = iniParser.Read("UpdateServerClient", "UpdateSetting");
                 data.UpdateConfig.UpdateServerPatch = iniParser.Read("UpdateServerPatch", "UpdateSetting");
                 data.UpdateConfig.UpdateLauncherUrl = iniParser.Read("UpdateLauncherUrl", "UpdateSetting");
-                data.UpdateConfig.UpdateUIUrl = iniParser.Read("UpdateUIUrl", "UpdateSetting");
                 data.UpdateConfig.CountParallelDownload = int.Parse(iniParser.Read("CountParallelDownload", "UpdateSetting"));
                 // Section Social
                 data.SocialConfig.forum_link = iniParser.Read("ForumLink", "SocialSetting");

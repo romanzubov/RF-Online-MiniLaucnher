@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Native ARM64 (.NET 9) build of MiniLauncher. Sources are shared with ..\MiniLauncher. -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AssemblyName>MiniLauncher</AssemblyName>
+    <RootNamespace>MiniLauncher</RootNamespace>
+    <ApplicationIcon>..\MiniLauncher\Classic.ico</ApplicationIcon>
+    <RuntimeIdentifier>win-arm64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <NoWarn>$(NoWarn);CS0618;CS0169;SYSLIB0014;CA1416;WFO1000</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\MiniLauncher\**\*.cs" Exclude="..\MiniLauncher\bin\**;..\MiniLauncher\obj\**" LinkBase="src" />
+    <EmbeddedResource Include="..\MiniLauncher\View\*.resx" LinkBase="View" />
+    <EmbeddedResource Include="..\MiniLauncher\Properties\Resources.resx" LinkBase="Properties" />
+    <None Include="..\MiniLauncher\app.config" Link="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.Management" Version="9.0.0" />
+  </ItemGroup>
+</Project>

@@ -18,7 +18,9 @@ namespace MiniLauncher
         [STAThread]
         static void Main(string[] args)
         {
-            
+            // Все пути в конфиге относительные — работаем из папки, где лежит exe.
+            Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
+
             //For faster parallel download
             //ServicePointManager.UseNagleAlgorithm = true;
             ServicePointManager.DefaultConnectionLimit = 65000;

@@ -30,8 +30,8 @@ namespace MiniLauncher.Network.Packets
         public byte wKey;
 
         public UInt16 size() { return (UInt16)Marshal.SizeOf(this); }
-        //public const int ID = 13; // Standart
-        public const int ID = 165; // RF Essense
+        public const int ID = 13; // Standart
+        //public const int ID = 165; // RF Essense
     };
 
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi), Serializable]

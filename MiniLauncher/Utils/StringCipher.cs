@@ -1,101 +1,87 @@
-﻿using System;
+using System;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace MiniLauncher.Utils
 {
+    /// <summary>
+    /// AES-256-CBC с PBKDF2 (Rfc2898). Формат: [32 байта соли] + [16 байт IV] + [шифртекст].
+    /// Раньше использовался RijndaelManaged с BlockSize=256 — .NET Core/.NET 5+ поддерживает
+    /// только 128-битный блок (PlatformNotSupportedException), поэтому формат изменён.
+    /// </summary>
     public static class StringCipher
     {
-        // This constant is used to determine the keysize of the encryption algorithm in bits.
-        // We divide this by 8 within the code below to get the equivalent number of bytes.
-        private const int Keysize = 256;
-
-        // This constant determines the number of iterations for the password bytes generation function.
+        private const int KeySize = 256;
+        private const int SaltSize = 32;
+        private const int IvSize = 16;
         private const int DerivationIterations = 1000;
 
         public static string Encrypt(string plainText, string passPhrase)
         {
-            // Salt and IV is randomly generated each time, but is preprended to encrypted cipher text
-            // so that the same Salt and IV values can be used when decrypting.  
-            var saltStringBytes = Generate256BitsOfRandomEntropy();
-            var ivStringBytes = Generate256BitsOfRandomEntropy();
+            var salt = RandomBytes(SaltSize);
+            var iv = RandomBytes(IvSize);
             var plainTextBytes = Encoding.UTF8.GetBytes(plainText);
-            var password = new Rfc2898DeriveBytes(passPhrase, saltStringBytes, DerivationIterations);
-            var keyBytes = password.GetBytes(Keysize / 8);
-            using (var symmetricKey = new RijndaelManaged())
+
+            using (var aes = Aes.Create())
             {
-                symmetricKey.BlockSize = 256;
-                symmetricKey.Mode = CipherMode.CBC;
-                symmetricKey.Padding = PaddingMode.PKCS7;
-                using (var encryptor = symmetricKey.CreateEncryptor(keyBytes, ivStringBytes))
+                aes.KeySize = KeySize;
+                aes.BlockSize = 128;
+                aes.Mode = CipherMode.CBC;
+                aes.Padding = PaddingMode.PKCS7;
+                using (var kdf = new Rfc2898DeriveBytes(passPhrase, salt, DerivationIterations))
+                using (var encryptor = aes.CreateEncryptor(kdf.GetBytes(KeySize / 8), iv))
+                using (var ms = new MemoryStream())
                 {
-                    using (var memoryStream = new MemoryStream())
+                    ms.Write(salt, 0, salt.Length);
+                    ms.Write(iv, 0, iv.Length);
+                    using (var cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
                     {
-                        using (var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
-                        {
-                            cryptoStream.Write(plainTextBytes, 0, plainTextBytes.Length);
-                            cryptoStream.FlushFinalBlock();
-                            // Create the final bytes as a concatenation of the random salt bytes, the random iv bytes and the cipher bytes.
-                            var cipherTextBytes = saltStringBytes;
-                            cipherTextBytes = cipherTextBytes.Concat(ivStringBytes).ToArray();
-                            cipherTextBytes = cipherTextBytes.Concat(memoryStream.ToArray()).ToArray();
-                            memoryStream.Close();
-                            cryptoStream.Close();
-                            return Convert.ToBase64String(cipherTextBytes);
-                        }
+                        cs.Write(plainTextBytes, 0, plainTextBytes.Length);
+                        cs.FlushFinalBlock();
                     }
+                    return Convert.ToBase64String(ms.ToArray());
                 }
             }
-            
         }
 
         public static string Decrypt(string cipherText, string passPhrase)
         {
-            // Get the complete stream of bytes that represent:
-            // [32 bytes of Salt] + [32 bytes of IV] + [n bytes of CipherText]
-            var cipherTextBytesWithSaltAndIv = Convert.FromBase64String(cipherText);
-            // Get the saltbytes by extracting the first 32 bytes from the supplied cipherText bytes.
-            var saltStringBytes = cipherTextBytesWithSaltAndIv.Take(Keysize / 8).ToArray();
-            // Get the IV bytes by extracting the next 32 bytes from the supplied cipherText bytes.
-            var ivStringBytes = cipherTextBytesWithSaltAndIv.Skip(Keysize / 8).Take(Keysize / 8).ToArray();
-            // Get the actual cipher text bytes by removing the first 64 bytes from the cipherText string.
-            var cipherTextBytes = cipherTextBytesWithSaltAndIv.Skip((Keysize / 8) * 2).Take(cipherTextBytesWithSaltAndIv.Length - ((Keysize / 8) * 2)).ToArray();
+            var all = Convert.FromBase64String(cipherText);
+            if (all.Length < SaltSize + IvSize + 16)
+                throw new CryptographicException("Cipher text is too short or in an unsupported (legacy) format.");
 
-            var password = new Rfc2898DeriveBytes(passPhrase, saltStringBytes, DerivationIterations);
-            var keyBytes = password.GetBytes(Keysize / 8);
-            using (var symmetricKey = new RijndaelManaged())
+            var salt = new byte[SaltSize];
+            var iv = new byte[IvSize];
+            Buffer.BlockCopy(all, 0, salt, 0, SaltSize);
+            Buffer.BlockCopy(all, SaltSize, iv, 0, IvSize);
+            int cipherLen = all.Length - SaltSize - IvSize;
+
+            using (var aes = Aes.Create())
             {
-                symmetricKey.BlockSize = 256;
-                symmetricKey.Mode = CipherMode.CBC;
-                symmetricKey.Padding = PaddingMode.PKCS7;
-                using (var decryptor = symmetricKey.CreateDecryptor(keyBytes, ivStringBytes))
+                aes.KeySize = KeySize;
+                aes.BlockSize = 128;
+                aes.Mode = CipherMode.CBC;
+                aes.Padding = PaddingMode.PKCS7;
+                using (var kdf = new Rfc2898DeriveBytes(passPhrase, salt, DerivationIterations))
+                using (var decryptor = aes.CreateDecryptor(kdf.GetBytes(KeySize / 8), iv))
+                using (var ms = new MemoryStream(all, SaltSize + IvSize, cipherLen))
+                using (var cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read))
+                using (var reader = new StreamReader(cs, Encoding.UTF8))
                 {
-                    using (var memoryStream = new MemoryStream(cipherTextBytes))
-                    {
-                        using (var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
-                        {
-                            var plainTextBytes = new byte[cipherTextBytes.Length];
-                            var decryptedByteCount = cryptoStream.Read(plainTextBytes, 0, plainTextBytes.Length);
-                            memoryStream.Close();
-                            cryptoStream.Close();
-                            return Encoding.UTF8.GetString(plainTextBytes, 0, decryptedByteCount);
-                        }
-                    }
+                    return reader.ReadToEnd();
                 }
-            }   
+            }
         }
 
-        private static byte[] Generate256BitsOfRandomEntropy()
+        private static byte[] RandomBytes(int count)
         {
-            var randomBytes = new byte[32]; // 32 Bytes will give us 256 bits.
-            var rngCsp = new RNGCryptoServiceProvider();
-
-            // Fill the array with cryptographically secure random bytes.
-            rngCsp.GetBytes(randomBytes);
-
-            return randomBytes;
+            var bytes = new byte[count];
+            using (var rng = new RNGCryptoServiceProvider())
+            {
+                rng.GetBytes(bytes);
+            }
+            return bytes;
         }
     }
 }

@@ -96,6 +96,12 @@ namespace MiniLauncher.Utils
                 {
                     JsonSerializer serializer = new JsonSerializer();
                     var CryptedAuthenticationData = (Dictionary<string, string>)serializer.Deserialize(file, typeof(Dictionary<string, string>));
+
+                    if(CryptedAuthenticationData == null)
+                    {
+                        return;
+                    }
+
                     foreach(var keyValuePair in CryptedAuthenticationData)
                     {
                         DecryptedAuthenticationData.Add(StringCipher.Decrypt(keyValuePair.Key, pwd), 

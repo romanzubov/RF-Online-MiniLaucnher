@@ -199,7 +199,15 @@ namespace MiniLauncher
                 case NetworkClientEventArgs.Callback.SERVER_LIST_INFORM:
                     if (save_checkbox.Enabled)
                     {
-                        userCredential.ProcessLoginData(login_input.Text, password_input.Text);
+                        try
+                        {
+                            userCredential.ProcessLoginData(login_input.Text, password_input.Text);
+                        }
+                        catch (Exception ex)
+                        {
+                            // Ошибка сохранения пароля не должна рвать сетевую сессию.
+                            SimpleLogger.GetInstance.Error("Save credentials failed: " + ex);
+                        }
                     }
                     FillServerList(e.Servers);
                     break;

@@ -98,8 +98,16 @@ namespace MiniLauncher.Utils
                     var CryptedAuthenticationData = (Dictionary<string, string>)serializer.Deserialize(file, typeof(Dictionary<string, string>));
                     foreach(var keyValuePair in CryptedAuthenticationData)
                     {
-                        DecryptedAuthenticationData.Add(StringCipher.Decrypt(keyValuePair.Key, pwd), 
-                            StringCipher.Decrypt(keyValuePair.Value, pwd));
+                        try
+                        {
+                            DecryptedAuthenticationData[StringCipher.Decrypt(keyValuePair.Key, pwd)] =
+                                StringCipher.Decrypt(keyValuePair.Value, pwd);
+                        }
+                        catch (Exception e)
+                        {
+                            // Запись в старом формате (Rijndael/256) или повреждена — пропускаем.
+                            SimpleLogger.GetInstance.Warning("Credential entry skipped: " + e.Message);
+                        }
                     }
                 }
             }

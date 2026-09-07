@@ -12,6 +12,7 @@ using MiniLauncherStyle.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Windows;
@@ -43,7 +44,7 @@ namespace MiniLauncherStyle
         private readonly INavigationService _navigationService;
         private readonly IGameService _gameService;
         private readonly ISettingsService _settingsService;
-
+        private readonly IGatewayService _gatewayService;
         public MainWindow()
         {
             connectionStatus = false;
@@ -55,7 +56,8 @@ namespace MiniLauncherStyle
             _navigationService = ServiceLocator.Current.Get<INavigationService>();
             _gameService = ServiceLocator.Current.Get<IGameService>();
             _settingsService = ServiceLocator.Current.Get<ISettingsService>();
-            
+            _gatewayService = ServiceLocator.Current.Get<IGatewayService>();
+
             // Создание ViewModel
             ViewModel = new MainViewModel(contentService, _dialogService);
             
@@ -85,10 +87,61 @@ namespace MiniLauncherStyle
             var worker = new System.ComponentModel.BackgroundWorker();
             worker.DoWork += (sender, e) => networkClient.StartClient();
             worker.RunWorkerAsync();
+
+            _gatewayService.LoadGateways(LauncherConfig.GetInstance.ServerConfig.Gateways, (data) =>
+            {
+                data.Data
+                    .OrderBy(g => g.Rtt < 0)              // сначала доступные
+                    .ThenBy(g => g.Rtt < 0 ? int.MaxValue : g.Rtt)
+                    .ToList()
+                    .ForEach(gateway =>
+                    {
+                        if(gateway.Rtt < 0)
+                        {
+                            return;
+                        }
+
+                        var item = new ComboBoxItem
+                        {
+                            Tag = gateway.Key,
+                            Content = string.Format("{0} - {1}",
+                                gateway.Name,
+                                gateway.Rtt + " ms")
+                        };
+
+                        // Подсветка по RTT
+                        if (gateway.Rtt < 0)
+                        {
+                            item.Foreground = Brushes.Gray;
+                        }
+                        else if (gateway.Rtt <= 50)
+                        {
+                            item.Foreground = Brushes.Green;
+                        }
+                        else if (gateway.Rtt <= 120)
+                        {
+                            item.Foreground = Brushes.Orange;
+                        }
+                        else
+                        {
+                            item.Foreground = Brushes.Red;
+                        }
+
+                        gateways.Items.Add(item);
+                    });
+
+                if(data.Data.All(x=> x.Rtt < 0))
+                {
+                    gateways.Visibility = Visibility.Hidden;
+                }
+                else
+                {
+                    gateways.SelectedIndex = 0;
+                }
+            });
         }
         private void NetworkClient_OnError(object sender, EventArgs e)
         {
-
             ChangeStatus(false);
         }
         private void NetworkClient_OnConnected(object sender, EventArgs e)
@@ -572,6 +625,25 @@ namespace MiniLauncherStyle
                 
                 _settingsService.SaveLanguage(nation);
                 _navigationService.RestartApplication();
+            }
+        }
+
+        private void GatewaySelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (gateways.SelectedItem is ComboBoxItem item)
+            {
+                var gatewayKey = (string)item.Tag;
+
+                var address = _gatewayService.GetAddress(gatewayKey);
+
+                if(address == null)
+                {
+                    return;
+                }
+
+                var currentAddressWithPort = LauncherConfig.GetInstance.ServerConfig.ServerAddress.Split(':');
+
+                LauncherConfig.GetInstance.ServerConfig.ServerAddress = $"{address}:{currentAddressWithPort[1]}";
             }
         }
     }

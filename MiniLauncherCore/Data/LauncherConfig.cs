@@ -26,11 +26,22 @@ namespace MiniLauncher.Data
         }
     }
 
+    public class GatewaySetting
+    {
+        public string GatewayKey { get; set; }
+
+        public string GatewayTittle { get; set; }
+
+        public string GatewayAddress { get; set; }
+
+    }
+
     public class ServerSetting
     {
         public string Title { get; set; }
         public string LogginAddress { get; set; }
         public string ServerAddress { get; set; }
+        public List<GatewaySetting> Gateways { get; set; }
         public bool OverrideServerAddress { get; set; }
         public bool OverrideServerSelection { get; set; }
         public int ServerIndexSelect { get; set; }
@@ -58,7 +69,6 @@ namespace MiniLauncher.Data
         public string UpdateServerClient { get; set; }
         public string UpdateServerPatch { get; set; }
         public string UpdateLauncherUrl { get; set; }
-        public string UpdateUIUrl { get; set; }
         public UpdateType UpdateType { get; set; }
         public int CountParallelDownload { get; set; }
     }

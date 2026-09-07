@@ -27,6 +27,12 @@ namespace MiniLauncher.View
 
         private void LauncherUpdate()
         {
+            if(string.IsNullOrEmpty(LauncherConfig.GetInstance.UpdateConfig.UpdateLauncherUrl))
+            {
+                Close();
+                return;
+            }
+
             Version currentVersion = System.Reflection.Assembly.GetEntryAssembly().GetName().Version;
             Version remouteVersion = GetRemouteVersion(LauncherConfig.GetInstance.UpdateConfig.UpdateLauncherUrl + "version.txt");
             if(remouteVersion > currentVersion)
